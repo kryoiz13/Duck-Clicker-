@@ -96,13 +96,25 @@ class DuckClicker:
         self.root.configure(bg="#232946")
         self.root.bind("<F11>", self.toggle_fullscreen)
 
-        # --- Tabs setup ---
-        self.notebook = ttk.Notebook(root)
-        self.main_tab = tk.Frame(self.notebook, bg="#232946")
-        self.stats_tab = tk.Frame(self.notebook, bg="#232946")
-        self.notebook.add(self.main_tab, text="Game")
-        self.notebook.add(self.stats_tab, text="Stats")
-        self.notebook.pack(fill="both", expand=True)
+        # --- Main game frame ---
+        self.main_frame = tk.Frame(root, bg="#232946")
+        self.main_frame.pack(fill="both", expand=True)
+
+        # --- Stats bar at the top ---
+        self.stats_bar = tk.Frame(self.main_frame, bg="#232946")
+        self.stats_bar.pack(side="top", fill="x", pady=(10, 0))
+
+        self.stats_click_label = tk.Label(
+            self.stats_bar, text="", font=("Segoe UI", 18, "bold"),
+            bg="#232946", fg="#eebbc3", anchor="w"
+        )
+        self.stats_click_label.pack(side="left", padx=(20, 40))
+
+        self.stats_auto_label = tk.Label(
+            self.stats_bar, text="", font=("Segoe UI", 18, "bold"),
+            bg="#232946", fg="#eebbc3", anchor="w"
+        )
+        self.stats_auto_label.pack(side="left", padx=(0, 40))
 
         # --- Load progress ---
         progress = load_progress()
@@ -160,50 +172,49 @@ class DuckClicker:
         ]
         self.extra_upgrade_buttons = []
 
-        # Main frame for duck and counter (parent is self.main_tab)
-        main_frame = tk.Frame(self.main_tab, bg="#232946")
-        main_frame.pack(side="left", fill="both", expand=True)
+        # --- Main game area (left) ---
+        left_frame = tk.Frame(self.main_frame, bg="#232946")
+        left_frame.pack(side="left", fill="both", expand=True)
 
         self.title = tk.Label(
-            main_frame, text="Duck Clicker!", font=("Segoe UI", 44, "bold"),
+            left_frame, text="Duck Clicker!", font=("Segoe UI", 44, "bold"),
             bg="#232946", fg="#eebbc3"
         )
         self.title.pack(pady=(40, 10))
 
         self.label = tk.Label(
-            main_frame, text=f"Ducks: {abbreviate(self.ducks)}", font=("Segoe UI", 28, "bold"),
+            left_frame, text=f"Ducks: {abbreviate(self.ducks)}", font=("Segoe UI", 28, "bold"),
             bg="#232946", fg="#fffffe"
         )
         self.label.pack(pady=10)
 
         self.rebirth_label = tk.Label(
-            main_frame, text=f"Rebirths: {abbreviate(self.rebirths)}", font=("Segoe UI", 18, "bold"),
+            left_frame, text=f"Rebirths: {abbreviate(self.rebirths)}", font=("Segoe UI", 18, "bold"),
             bg="#232946", fg="#eebbc3"
         )
         self.rebirth_label.pack(pady=5)
 
-        # --- Duck button: big emoji only ---
         self.duck_button = tk.Button(
-            main_frame, text="🦆", font=("Segoe UI", 80, "bold"),
+            left_frame, text="🦆", font=("Segoe UI", 80, "bold"),
             command=self.click_duck,
             bg="#eebbc3", activebackground="#fffffe", bd=6, relief="ridge", cursor="hand2", fg="#232946"
         )
         self.duck_button.pack(pady=20)
 
         self.status = tk.Label(
-            main_frame, text="", font=("Segoe UI", 16, "italic"),
+            left_frame, text="", font=("Segoe UI", 16, "italic"),
             bg="#232946", fg="#b8c1ec"
         )
         self.status.pack(pady=10)
 
         self.footer = tk.Label(
-            main_frame, text="Quack your way to the top!", font=("Segoe UI", 16),
+            left_frame, text="Quack your way to the top!", font=("Segoe UI", 16),
             bg="#232946", fg="#b8c1ec"
         )
         self.footer.pack(side="bottom", pady=20)
 
         # --- Modern Scrollable Upgrades panel on the right ---
-        upgrades_outer = tk.Frame(self.main_tab, bg="#232946", bd=0, relief="flat")
+        upgrades_outer = tk.Frame(self.main_frame, bg="#232946", bd=0, relief="flat")
         upgrades_outer.pack(side="right", fill="y", padx=0, pady=0)
 
         canvas = tk.Canvas(
@@ -219,7 +230,6 @@ class DuckClicker:
         canvas.create_window((0, 0), window=self.upgrades_frame, anchor="nw")
         canvas.pack(side="left", fill="both", expand=True)
 
-        # --- Mouse wheel scroll anywhere on upgrades panel ---
         def _on_mousewheel(event):
             canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         canvas.bind_all("<MouseWheel>", _on_mousewheel)
@@ -232,7 +242,6 @@ class DuckClicker:
         )
         upgrades_title.pack(pady=(10, 10))
 
-        # --- Helper for pretty buttons ---
         def pretty_button(parent, text, command):
             return tk.Button(
                 parent,
@@ -246,7 +255,6 @@ class DuckClicker:
                 highlightthickness=0
             )
 
-        # --- Upgrades (use pretty_button for all) ---
         self.upgrade1_button = pretty_button(
             self.upgrades_frame,
             f"Stronger Beak (+1/click)\nCost: {abbreviate(self.upgrade1_cost)} ducks",
@@ -352,7 +360,6 @@ class DuckClicker:
         )
         self.duck_universe_button.pack(pady=7)
 
-        # --- 23 Named Upgrades ---
         for idx, name in enumerate(self.extra_upgrade_names):
             btn = pretty_button(
                 self.upgrades_frame,
@@ -361,25 +368,6 @@ class DuckClicker:
             )
             btn.pack(pady=7)
             self.extra_upgrade_buttons.append(btn)
-
-        # --- Stats tab content ---
-        self.stats_title = tk.Label(
-            self.stats_tab, text="Duck Stats", font=("Segoe UI", 32, "bold"),
-            bg="#232946", fg="#eebbc3"
-        )
-        self.stats_title.pack(pady=30)
-
-        self.stats_click_label = tk.Label(
-            self.stats_tab, text="", font=("Segoe UI", 22),
-            bg="#232946", fg="#fffffe"
-        )
-        self.stats_click_label.pack(pady=15)
-
-        self.stats_auto_label = tk.Label(
-            self.stats_tab, text="", font=("Segoe UI", 22),
-            bg="#232946", fg="#fffffe"
-        )
-        self.stats_auto_label.pack(pady=15)
 
         self.update_stats_tab()  # Start updating stats
 
