@@ -92,7 +92,7 @@ class DuckClicker:
         self.fullscreen = True
         self.root.title("Duck Clicker 🦆")
         self.root.attributes('-fullscreen', self.fullscreen)
-        self.root.overrideredirect(self.fullscreen)
+        self.root.overrideredirect(self.fullscreen)  # Hide title bar in fullscreen
         self.root.configure(bg="#232946")
         self.root.bind("<F11>", self.toggle_fullscreen)
 
@@ -390,7 +390,7 @@ class DuckClicker:
     def toggle_fullscreen(self, event=None):
         self.fullscreen = not self.fullscreen
         self.root.attributes('-fullscreen', self.fullscreen)
-        self.root.overrideredirect(self.fullscreen)
+        self.root.overrideredirect(self.fullscreen)  # Toggle title bar
 
     def update_stats_tab(self):
         bonus = 1 + self.rebirths * 0.5
