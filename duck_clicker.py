@@ -364,7 +364,46 @@ class DuckClicker:
         self.label.config(text=f"Ducks: {self.ducks}")
         self.status.config(text="Quack! 🦆", fg="#b8c1ec")
 
-    # ... All your previous buy_upgradeX methods here ...
+    def buy_upgrade1(self):
+        if self.ducks >= self.upgrade1_cost:
+            self.ducks -= self.upgrade1_cost
+            self.ducks_per_click += 1
+            self.upgrade1_cost = int(self.upgrade1_cost * 1.5) + 2
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.upgrade1_button.config(
+                text=f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks"
+            )
+            self.status.config(text="Your duck click is stronger!", fg="#b8c1ec")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_upgrade2(self):
+        if self.ducks >= self.upgrade2_cost:
+            self.ducks -= self.upgrade2_cost
+            self.auto_ducks += 1
+            self.upgrade2_cost = int(self.upgrade2_cost * 1.7) + 5
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.upgrade2_button.config(
+                text=f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks"
+            )
+            self.status.config(text="Auto Duck hired! Ducks per second increased!", fg="#b8c1ec")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_upgrade3(self):
+        if self.ducks >= self.upgrade3_cost:
+            self.ducks -= self.upgrade3_cost
+            self.ducks += 50
+            self.upgrade3_cost = int(self.upgrade3_cost * 2.2) + 10
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.upgrade3_button.config(
+                text=f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks"
+            )
+            self.status.config(text="Golden Duck! That's a lot of ducks!", fg="#fbc02d")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    # ... All your other buy_xxx methods (super_duck, ultra_click, etc.) ...
 
     def buy_extra_upgrade(self, idx):
         if self.ducks >= self.extra_upgrade_costs[idx]:
@@ -378,8 +417,6 @@ class DuckClicker:
             self.status.config(text=f"{self.extra_upgrade_names[idx]} hired! +{self.extra_upgrade_incomes[idx]:,}/sec!", fg="#00bcd4")
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    # ... All your other methods (rebirth, auto_duck_loop, etc.) remain unchanged ...
 
     def rebirth(self):
         if self.ducks >= self.rebirth_cost:
