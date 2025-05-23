@@ -2,9 +2,10 @@ import tkinter as tk
 import os
 import sys
 import urllib.request
+import tkinter as tk
+from tkinter import messagebox
 
-# --- AUTO-UPDATE SECTION ---
-UPDATE_URL = "https://raw.githubusercontent.com/kryoiz13/Duck-Clicker-/refs/heads/main/duck_clicker.py"  # CHANGE THIS!
+UPDATE_URL = "https://raw.githubusercontent.com/kryoiz13/Duck-Clicker-/refs/heads/main/duck_clicker.py"  # <-- CHANGE THIS!
 LOCAL_FILE = os.path.abspath(__file__)
 
 def check_for_update():
@@ -16,15 +17,13 @@ def check_for_update():
         if remote_code != local_code:
             with open(LOCAL_FILE, "w", encoding="utf-8") as f:
                 f.write(remote_code)
-            tk.messagebox.showinfo("Update", "Game updated! Please restart the game.")
+            tk.Tk().withdraw()
+            messagebox.showinfo("Update", "Game updated! Please restart the game.")
             sys.exit(0)
     except Exception as e:
         print("Update check failed:", e)
 
-# Check for updates before starting the game
 check_for_update()
-
-# --- GAME CODE BELOW ---
 class DuckClicker:
     def __init__(self, root):
         self.root = root
@@ -35,11 +34,23 @@ class DuckClicker:
         self.ducks = 0
         self.ducks_per_click = 1
         self.auto_ducks = 0
+
+        # New upgrades
         self.super_ducks = 0
         self.super_duck_cost = 1000
         self.ultra_click_cost = 500
         self.ultra_click_active = False
         self.ultra_click_duration = 10  # seconds
+
+        self.mega_click_cost = 5000
+        self.mega_click_active = False
+        self.mega_click_duration = 5
+
+        self.duck_factory_cost = 20000
+        self.duck_factory_count = 0
+
+        self.duck_god_cost = 100000
+        self.duck_god_count = 0
 
         # Main frame for duck and counter
         main_frame = tk.Frame(root, bg="#b3e5fc")
@@ -144,12 +155,44 @@ class DuckClicker:
         )
         self.ultra_click_button.pack(pady=10)
 
+        # Upgrade 6: Mega Click (x100 for 5s)
+        self.mega_click_button = tk.Button(
+            upgrades_frame,
+            text=f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_mega_click,
+            bg="#d500f9", fg="#fff", activebackground="#ea80fc", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.mega_click_button.pack(pady=10)
+
+        # Upgrade 7: Duck Factory (+100/sec)
+        self.duck_factory_button = tk.Button(
+            upgrades_frame,
+            text=f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_duck_factory,
+            bg="#ffb300", fg="#4e342e", activebackground="#ffe082", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.duck_factory_button.pack(pady=10)
+
+        # Upgrade 8: Duck God (+1000/sec)
+        self.duck_god_button = tk.Button(
+            upgrades_frame,
+            text=f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_duck_god,
+            bg="#212121", fg="#ffd600", activebackground="#616161", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.duck_god_button.pack(pady=10)
+
         # Start auto duck loop
         self.auto_duck_loop()
 
     def click_duck(self):
         if self.ultra_click_active:
             self.ducks += self.ducks_per_click * 10
+        elif self.mega_click_active:
+            self.ducks += self.ducks_per_click * 100
         else:
             self.ducks += self.ducks_per_click
         self.label.config(text=f"Ducks: {self.ducks}")
@@ -226,6 +269,54 @@ class DuckClicker:
     def deactivate_ultra_click(self):
         self.ultra_click_active = False
         self.status.config(text="Ultra Click ended!", fg="#388e3c")
+
+    def buy_mega_click(self):
+        if self.ducks >= self.mega_click_cost and not self.mega_click_active:
+            self.ducks -= self.mega_click_cost
+            self.mega_click_cost = int(self.mega_click_cost * 2.5)
+            self.mega_click_button.config(
+                text=f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks"
+            )
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.mega_click_active = True
+            self.status.config(text="Mega Click activated! 100x for 5s!", fg="#d500f9")
+            self.root.after(self.mega_click_duration * 1000, self.deactivate_mega_click)
+        elif self.mega_click_active:
+            self.status.config(text="Mega Click already active!", fg="#d32f2f")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def deactivate_mega_click(self):
+        self.mega_click_active = False
+        self.status.config(text="Mega Click ended!", fg="#388e3c")
+
+    def buy_duck_factory(self):
+        if self.ducks >= self.duck_factory_cost:
+            self.ducks -= self.duck_factory_cost
+            self.auto_ducks += 100
+            self.duck_factory_count += 1
+            self.duck_factory_cost = int(self.duck_factory_cost * 2.5)
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.duck_factory_button.config(
+                text=f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks"
+            )
+            self.status.config(text=f"Duck Factory built! Total: {self.duck_factory_count}", fg="#ffb300")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_duck_god(self):
+        if self.ducks >= self.duck_god_cost:
+            self.ducks -= self.duck_god_cost
+            self.auto_ducks += 1000
+            self.duck_god_count += 1
+            self.duck_god_cost = int(self.duck_god_cost * 3)
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.duck_god_button.config(
+                text=f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks"
+            )
+            self.status.config(text=f"Duck God ascended! Total: {self.duck_god_count}", fg="#ffd600")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
     def auto_duck_loop(self):
         if self.auto_ducks > 0:
