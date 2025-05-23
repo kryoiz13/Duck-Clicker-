@@ -89,9 +89,11 @@ check_for_update()
 class DuckClicker:
     def __init__(self, root):
         self.root = root
+        self.fullscreen = True
         self.root.title("Duck Clicker 🦆")
-        self.root.attributes('-fullscreen', True)
+        self.root.attributes('-fullscreen', self.fullscreen)
         self.root.configure(bg="#232946")
+        self.root.bind("<F11>", self.toggle_fullscreen)
 
         # --- Tabs setup ---
         self.notebook = ttk.Notebook(root)
@@ -384,8 +386,11 @@ class DuckClicker:
         self.root.after(1000, self.auto_save)
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
+    def toggle_fullscreen(self, event=None):
+        self.fullscreen = not self.fullscreen
+        self.root.attributes('-fullscreen', self.fullscreen)
+
     def update_stats_tab(self):
-        # Calculate per-click ducks (with rebirth and multipliers)
         bonus = 1 + self.rebirths * 0.5
         if self.ultra_click_active:
             per_click = int(self.ducks_per_click * 10 * bonus)
@@ -399,7 +404,7 @@ class DuckClicker:
         self.stats_auto_label.config(
             text=f"Ducks per second (auto): {abbreviate(self.auto_ducks)}"
         )
-        self.root.after(200, self.update_stats_tab)  # Update every 0.2s
+        self.root.after(200, self.update_stats_tab)
 
     def click_duck(self):
         bonus = 1 + self.rebirths * 0.5
