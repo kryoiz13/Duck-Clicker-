@@ -265,9 +265,6 @@ class DuckClicker:
         )
         self.upgrade3_button.pack(pady=7)
 
-        # ... (rest of your upgrade buttons and methods go here, unchanged) ...
-        # For brevity, not repeating all upgrade methods here, but keep them as in your file!
-
         # --- Stats tab content ---
         self.stats_title = tk.Label(
             self.stats_tab, text="Duck Stats", font=("Segoe UI", 32, "bold"),
@@ -310,9 +307,6 @@ class DuckClicker:
         )
         self.root.after(200, self.update_stats_tab)  # Update every 0.2s
 
-    # --- All your other methods (buy_upgrade1, buy_upgrade2, etc) go here ---
-    # ... (rest of your class code unchanged, see your previous file) ...
-
     def click_duck(self):
         bonus = 1 + self.rebirths * 0.5
         if self.ultra_click_active:
@@ -324,7 +318,44 @@ class DuckClicker:
         self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
         self.status.config(text="Quack! 🦆", fg="#b8c1ec")
 
-    # ... (all other methods unchanged, as in your last file) ...
+    def buy_upgrade1(self):
+        if self.ducks >= self.upgrade1_cost:
+            self.ducks -= self.upgrade1_cost
+            self.ducks_per_click += 1
+            self.upgrade1_cost = int(self.upgrade1_cost * 1.5) + 2
+            self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
+            self.upgrade1_button.config(
+                text=f"Stronger Beak (+1/click)\nCost: {abbreviate(self.upgrade1_cost)} ducks"
+            )
+            self.status.config(text="Your duck click is stronger!", fg="#b8c1ec")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_upgrade2(self):
+        if self.ducks >= self.upgrade2_cost:
+            self.ducks -= self.upgrade2_cost
+            self.auto_ducks += 1
+            self.upgrade2_cost = int(self.upgrade2_cost * 1.7) + 5
+            self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
+            self.upgrade2_button.config(
+                text=f"Auto Duck (+1/sec)\nCost: {abbreviate(self.upgrade2_cost)} ducks"
+            )
+            self.status.config(text="Auto Duck hired! Ducks per second increased!", fg="#b8c1ec")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_upgrade3(self):
+        if self.ducks >= self.upgrade3_cost:
+            self.ducks -= self.upgrade3_cost
+            self.ducks += 50
+            self.upgrade3_cost = int(self.upgrade3_cost * 2.2) + 10
+            self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
+            self.upgrade3_button.config(
+                text=f"Golden Duck (+50 ducks)\nCost: {abbreviate(self.upgrade3_cost)} ducks"
+            )
+            self.status.config(text="Golden Duck! That's a lot of ducks!", fg="#fbc02d")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
     def auto_duck_loop(self):
         if self.auto_ducks > 0:
