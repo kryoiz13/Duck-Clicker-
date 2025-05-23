@@ -5,6 +5,27 @@ import sys
 import urllib.request
 import json
 
+# --- BACKGROUND MUSIC (Molière) ---
+import threading
+import platform
+if platform.system() == "Windows":
+    import winsound
+
+def play_background_music():
+    # Download and play a short Molière-style classical music MIDI (royalty free)
+    # You can replace this URL with any royalty-free classical MIDI file
+    music_url = "https://cdn.pixabay.com/audio/2022/10/16/audio_12b7e7f6e7.mid"
+    music_file = "background_music.mid"
+    if not os.path.exists(music_file):
+        try:
+            urllib.request.urlretrieve(music_url, music_file)
+        except Exception:
+            return  # Fail silently if no internet
+    try:
+        winsound.PlaySound(music_file, winsound.SND_ASYNC | winsound.SND_LOOP)
+    except Exception:
+        pass
+
 # --- AUTO-UPDATE SETTINGS ---
 UPDATE_URL = "https://raw.githubusercontent.com/kryoiz13/Duck-Clicker-/main/duck_clicker.py"
 LOCAL_FILE = os.path.abspath(__file__)
@@ -93,26 +114,36 @@ class DuckClicker:
         self.root.title("Duck Clicker 🦆")
         self.root.attributes('-fullscreen', self.fullscreen)
         self.root.overrideredirect(self.fullscreen)  # Hide title bar in fullscreen
-        self.root.configure(bg="#232946")
+
+        # --- SIGMA UI THEME ---
+        self.bg_main = "#18181b"
+        self.bg_panel = "#232946"
+        self.bg_upgrade = "#22223b"
+        self.fg_main = "#f8fafc"
+        self.fg_accent = "#fbbf24"
+        self.fg_sigma = "#38bdf8"
+        self.fg_sigma2 = "#a21caf"
+        self.fg_status = "#f472b6"
+        self.root.configure(bg=self.bg_main)
         self.root.bind("<F11>", self.toggle_fullscreen)
 
         # --- Main game frame ---
-        self.main_frame = tk.Frame(root, bg="#232946")
+        self.main_frame = tk.Frame(root, bg=self.bg_main)
         self.main_frame.pack(fill="both", expand=True)
 
         # --- Stats bar at the top ---
-        self.stats_bar = tk.Frame(self.main_frame, bg="#232946")
+        self.stats_bar = tk.Frame(self.main_frame, bg=self.bg_main)
         self.stats_bar.pack(side="top", fill="x", pady=(10, 0))
 
         self.stats_click_label = tk.Label(
             self.stats_bar, text="", font=("Segoe UI", 18, "bold"),
-            bg="#232946", fg="#eebbc3", anchor="w"
+            bg=self.bg_main, fg=self.fg_sigma, anchor="w"
         )
         self.stats_click_label.pack(side="left", padx=(20, 40))
 
         self.stats_auto_label = tk.Label(
             self.stats_bar, text="", font=("Segoe UI", 18, "bold"),
-            bg="#232946", fg="#eebbc3", anchor="w"
+            bg=self.bg_main, fg=self.fg_sigma2, anchor="w"
         )
         self.stats_auto_label.pack(side="left", padx=(0, 40))
 
@@ -120,17 +151,17 @@ class DuckClicker:
         show_admin = os.environ.get("USERNAME", "").lower() == "lpeth"
 
         if show_admin:
-            admin_frame = tk.Frame(self.main_frame, bg="#232946")
+            admin_frame = tk.Frame(self.main_frame, bg=self.bg_main)
             admin_frame.pack(side="top", anchor="ne", padx=10, pady=5)
             tk.Label(
                 admin_frame, text="Admin Panel", font=("Segoe UI", 12, "bold"),
-                bg="#232946", fg="#f44336"
+                bg=self.bg_main, fg="#f44336"
             ).pack(side="left", padx=(0, 10))
             self.admin_entry = tk.Entry(admin_frame, width=10)
             self.admin_entry.pack(side="left")
             tk.Button(
                 admin_frame, text="Add Ducks", font=("Segoe UI", 10, "bold"),
-                command=self.admin_add_ducks, bg="#eebbc3", fg="#232946"
+                command=self.admin_add_ducks, bg=self.fg_sigma, fg=self.bg_main
             ).pack(side="left", padx=(5, 0))
             tk.Button(
                 admin_frame, text="Reset Ducks", font=("Segoe UI", 10, "bold"),
@@ -194,54 +225,54 @@ class DuckClicker:
         self.extra_upgrade_buttons = []
 
         # --- Main game area (left) ---
-        left_frame = tk.Frame(self.main_frame, bg="#232946")
+        left_frame = tk.Frame(self.main_frame, bg=self.bg_main)
         left_frame.pack(side="left", fill="both", expand=True)
 
         self.title = tk.Label(
-            left_frame, text="Duck Clicker!", font=("Segoe UI", 44, "bold"),
-            bg="#232946", fg="#eebbc3"
+            left_frame, text="DUCK CLICKER", font=("Segoe UI Black", 48, "bold"),
+            bg=self.bg_main, fg=self.fg_sigma2
         )
         self.title.pack(pady=(40, 10))
 
         self.label = tk.Label(
-            left_frame, text=f"Ducks: {abbreviate(self.ducks)}", font=("Segoe UI", 28, "bold"),
-            bg="#232946", fg="#fffffe"
+            left_frame, text=f"Ducks: {abbreviate(self.ducks)}", font=("Consolas", 32, "bold"),
+            bg=self.bg_main, fg=self.fg_accent
         )
         self.label.pack(pady=10)
 
         self.rebirth_label = tk.Label(
             left_frame, text=f"Rebirths: {abbreviate(self.rebirths)}", font=("Segoe UI", 18, "bold"),
-            bg="#232946", fg="#eebbc3"
+            bg=self.bg_main, fg=self.fg_sigma
         )
         self.rebirth_label.pack(pady=5)
 
         self.duck_button = tk.Button(
-            left_frame, text="🦆", font=("Segoe UI", 80, "bold"),
+            left_frame, text="🦆", font=("Segoe UI Emoji", 100, "bold"),
             command=self.click_duck,
-            bg="#eebbc3", activebackground="#fffffe", bd=6, relief="ridge", cursor="hand2", fg="#232946"
+            bg=self.fg_sigma, activebackground=self.fg_accent, bd=8, relief="groove", cursor="hand2", fg=self.bg_main
         )
-        self.duck_button.pack(pady=20)
+        self.duck_button.pack(pady=30)
 
         self.status = tk.Label(
-            left_frame, text="", font=("Segoe UI", 16, "italic"),
-            bg="#232946", fg="#b8c1ec"
+            left_frame, text="", font=("Segoe UI", 18, "italic"),
+            bg=self.bg_main, fg=self.fg_status
         )
         self.status.pack(pady=10)
 
         self.footer = tk.Label(
-            left_frame, text="Quack your way to the top!", font=("Segoe UI", 16),
-            bg="#232946", fg="#b8c1ec"
+            left_frame, text="Quack your way to the top! #SigmaMindset", font=("Segoe UI", 16, "bold"),
+            bg=self.bg_main, fg=self.fg_sigma2
         )
         self.footer.pack(side="bottom", pady=20)
 
         # --- Modern Scrollable Upgrades panel on the right ---
-        upgrades_outer = tk.Frame(self.main_frame, bg="#232946", bd=0, relief="flat")
+        upgrades_outer = tk.Frame(self.main_frame, bg=self.bg_main, bd=0, relief="flat")
         upgrades_outer.pack(side="right", fill="y", padx=0, pady=0)
 
         canvas = tk.Canvas(
-            upgrades_outer, bg="#232946", highlightthickness=0, bd=0, relief="flat"
+            upgrades_outer, bg=self.bg_main, highlightthickness=0, bd=0, relief="flat"
         )
-        self.upgrades_frame = tk.Frame(canvas, bg="#393e6c")
+        self.upgrades_frame = tk.Frame(canvas, bg=self.bg_upgrade)
 
         self.upgrades_frame.bind(
             "<Configure>",
@@ -258,8 +289,8 @@ class DuckClicker:
         self.upgrades_frame.bind("<Leave>", lambda e: canvas.unbind_all("<MouseWheel>"))
 
         upgrades_title = tk.Label(
-            self.upgrades_frame, text="Upgrades", font=("Segoe UI", 26, "bold"),
-            bg="#393e6c", fg="#eebbc3", pady=10
+            self.upgrades_frame, text="UPGRADES", font=("Segoe UI Black", 28, "bold"),
+            bg=self.bg_upgrade, fg=self.fg_sigma, pady=10
         )
         upgrades_title.pack(pady=(10, 10))
 
@@ -267,10 +298,10 @@ class DuckClicker:
             return tk.Button(
                 parent,
                 text=text,
-                font=("Segoe UI", 13, "bold"),
+                font=("Consolas", 13, "bold"),
                 command=command,
-                bg="#eebbc3", fg="#232946",
-                activebackground="#f6c9d0", activeforeground="#232946",
+                bg=self.fg_sigma2, fg=self.fg_main,
+                activebackground=self.fg_accent, activeforeground=self.bg_main,
                 bd=0, relief="flat", cursor="hand2",
                 wraplength=220, justify="center", height=3, width=22,
                 highlightthickness=0
@@ -396,6 +427,10 @@ class DuckClicker:
         self.root.after(1000, self.auto_save)
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
+        # --- Start background music in a thread ---
+        if platform.system() == "Windows":
+            threading.Thread(target=play_background_music, daemon=True).start()
+
     def toggle_fullscreen(self, event=None):
         self.fullscreen = not self.fullscreen
         self.root.attributes('-fullscreen', self.fullscreen)
@@ -426,7 +461,7 @@ class DuckClicker:
         else:
             self.ducks += int(self.ducks_per_click * bonus)
         self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
-        self.status.config(text="Quack! 🦆", fg="#b8c1ec")
+        self.status.config(text="Quack! 🦆", fg=self.fg_status)
 
     def buy_upgrade1(self):
         if self.ducks >= self.upgrade1_cost:
@@ -437,7 +472,7 @@ class DuckClicker:
             self.upgrade1_button.config(
                 text=f"Stronger Beak (+1/click)\nCost: {abbreviate(self.upgrade1_cost)} ducks"
             )
-            self.status.config(text="Your duck click is stronger!", fg="#b8c1ec")
+            self.status.config(text="Your duck click is stronger!", fg=self.fg_status)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -450,7 +485,7 @@ class DuckClicker:
             self.upgrade2_button.config(
                 text=f"Auto Duck (+1/sec)\nCost: {abbreviate(self.upgrade2_cost)} ducks"
             )
-            self.status.config(text="Auto Duck hired! Ducks per second increased!", fg="#b8c1ec")
+            self.status.config(text="Auto Duck hired! Ducks per second increased!", fg=self.fg_status)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -476,7 +511,7 @@ class DuckClicker:
             self.super_duck_button.config(
                 text=f"Super Duck (+10/sec)\nCost: {abbreviate(self.super_duck_cost)} ducks"
             )
-            self.status.config(text="Super Duck hired! +10/sec!", fg="#b8c1ec")
+            self.status.config(text="Super Duck hired! +10/sec!", fg=self.fg_status)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -489,14 +524,14 @@ class DuckClicker:
             self.ultra_click_button.config(
                 text=f"Ultra Click (x10 for 10s)\nCost: {abbreviate(self.ultra_click_cost)} ducks"
             )
-            self.status.config(text="Ultra Click active! x10/click for 10s!", fg="#b8c1ec")
+            self.status.config(text="Ultra Click active! x10/click for 10s!", fg=self.fg_status)
             self.root.after(self.ultra_click_duration * 1000, self.end_ultra_click)
         else:
             self.status.config(text="Not enough ducks or already active!", fg="#d32f2f")
 
     def end_ultra_click(self):
         self.ultra_click_active = False
-        self.status.config(text="Ultra Click ended.", fg="#b8c1ec")
+        self.status.config(text="Ultra Click ended.", fg=self.fg_status)
 
     def buy_mega_click(self):
         if self.ducks >= self.mega_click_cost and not self.mega_click_active:
@@ -507,14 +542,14 @@ class DuckClicker:
             self.mega_click_button.config(
                 text=f"Mega Click (x100 for 5s)\nCost: {abbreviate(self.mega_click_cost)} ducks"
             )
-            self.status.config(text="Mega Click active! x100/click for 5s!", fg="#b8c1ec")
+            self.status.config(text="Mega Click active! x100/click for 5s!", fg=self.fg_status)
             self.root.after(self.mega_click_duration * 1000, self.end_mega_click)
         else:
             self.status.config(text="Not enough ducks or already active!", fg="#d32f2f")
 
     def end_mega_click(self):
         self.mega_click_active = False
-        self.status.config(text="Mega Click ended.", fg="#b8c1ec")
+        self.status.config(text="Mega Click ended.", fg=self.fg_status)
 
     def buy_duck_factory(self):
         if self.ducks >= self.duck_factory_cost:
@@ -525,7 +560,7 @@ class DuckClicker:
             self.duck_factory_button.config(
                 text=f"Duck Factory (+100/sec)\nCost: {abbreviate(self.duck_factory_cost)} ducks"
             )
-            self.status.config(text="Duck Factory built! +100/sec!", fg="#b8c1ec")
+            self.status.config(text="Duck Factory built! +100/sec!", fg=self.fg_status)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -538,7 +573,7 @@ class DuckClicker:
             self.duck_god_button.config(
                 text=f"Duck God (+1000/sec)\nCost: {abbreviate(self.duck_god_cost)} ducks"
             )
-            self.status.config(text="Duck God summoned! +1000/sec!", fg="#b8c1ec")
+            self.status.config(text="Duck God summoned! +1000/sec!", fg=self.fg_status)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -564,7 +599,7 @@ class DuckClicker:
             self.duck_army_button.config(
                 text=f"Duck Army (+5000/sec)\nCost: {abbreviate(self.duck_army_cost)} ducks"
             )
-            self.status.config(text="Duck Army recruited! +5000/sec!", fg="#b8c1ec")
+            self.status.config(text="Duck Army recruited! +5000/sec!", fg=self.fg_status)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -577,7 +612,7 @@ class DuckClicker:
             self.duck_portal_button.config(
                 text=f"Duck Portal (x2 ducks/sec)\nCost: {abbreviate(self.duck_portal_cost)} ducks"
             )
-            self.status.config(text="Duck Portal opened! Ducks/sec doubled!", fg="#b8c1ec")
+            self.status.config(text="Duck Portal opened! Ducks/sec doubled!", fg=self.fg_status)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -590,7 +625,7 @@ class DuckClicker:
             self.duck_bank_button.config(
                 text=f"Duck Bank (+25000/sec)\nCost: {abbreviate(self.duck_bank_cost)} ducks"
             )
-            self.status.config(text="Duck Bank built! +25000/sec!", fg="#b8c1ec")
+            self.status.config(text="Duck Bank built! +25000/sec!", fg=self.fg_status)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -603,7 +638,7 @@ class DuckClicker:
             self.duck_rocket_button.config(
                 text=f"Duck Rocket (+100000/sec)\nCost: {abbreviate(self.duck_rocket_cost)} ducks"
             )
-            self.status.config(text="Duck Rocket launched! +100000/sec!", fg="#b8c1ec")
+            self.status.config(text="Duck Rocket launched! +100000/sec!", fg=self.fg_status)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -616,7 +651,7 @@ class DuckClicker:
             self.duck_empire_button.config(
                 text=f"Duck Empire (+500000/sec)\nCost: {abbreviate(self.duck_empire_cost)} ducks"
             )
-            self.status.config(text="Duck Empire founded! +500000/sec!", fg="#b8c1ec")
+            self.status.config(text="Duck Empire founded! +500000/sec!", fg=self.fg_status)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -629,7 +664,7 @@ class DuckClicker:
             self.duck_universe_button.config(
                 text=f"Duck Universe (+2,500,000/sec)\nCost: {abbreviate(self.duck_universe_cost)} ducks"
             )
-            self.status.config(text="Duck Universe created! +2,500,000/sec!", fg="#b8c1ec")
+            self.status.config(text="Duck Universe created! +2,500,000/sec!", fg=self.fg_status)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -642,7 +677,7 @@ class DuckClicker:
             self.extra_upgrade_buttons[idx].config(
                 text=f"{self.extra_upgrade_names[idx]} (+{abbreviate(self.extra_upgrade_incomes[idx])}/sec)\nCost: {abbreviate(self.extra_upgrade_costs[idx])} ducks"
             )
-            self.status.config(text=f"{self.extra_upgrade_names[idx]} hired! +{abbreviate(self.extra_upgrade_incomes[idx])}/sec!", fg="#00bcd4")
+            self.status.config(text=f"{self.extra_upgrade_names[idx]} hired! +{abbreviate(self.extra_upgrade_incomes[idx])}/sec!", fg=self.fg_sigma)
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
