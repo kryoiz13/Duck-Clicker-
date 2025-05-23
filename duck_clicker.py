@@ -19,7 +19,6 @@ def check_for_update():
             remote_code = response.read().decode("utf-8")
         with open(LOCAL_FILE, "r", encoding="utf-8") as f:
             local_code = f.read()
-        # Normalize line endings for both
         if normalize_line_endings(remote_code) != normalize_line_endings(local_code):
             with open(LOCAL_FILE, "w", encoding="utf-8") as f:
                 f.write(remote_code)
@@ -34,6 +33,8 @@ def save_progress(game):
         "ducks": game.ducks,
         "ducks_per_click": game.ducks_per_click,
         "auto_ducks": game.auto_ducks,
+        "rebirths": game.rebirths,
+        "rebirth_cost": game.rebirth_cost,
         "super_ducks": getattr(game, "super_ducks", 0),
         "super_duck_cost": game.super_duck_cost,
         "ultra_click_cost": game.ultra_click_cost,
@@ -52,6 +53,10 @@ def save_progress(game):
         "diamond_duck_cost": getattr(game, "diamond_duck_cost", 50000),
         "duck_army_cost": getattr(game, "duck_army_cost", 250000),
         "duck_portal_cost": getattr(game, "duck_portal_cost", 1000000),
+        "duck_bank_cost": getattr(game, "duck_bank_cost", 2000000),
+        "duck_rocket_cost": getattr(game, "duck_rocket_cost", 10000000),
+        "duck_empire_cost": getattr(game, "duck_empire_cost", 50000000),
+        "duck_universe_cost": getattr(game, "duck_universe_cost", 250000000),
     }
     try:
         with open(SAVE_FILE, "w", encoding="utf-8") as f:
@@ -82,6 +87,8 @@ class DuckClicker:
         self.ducks = progress.get("ducks", 0)
         self.ducks_per_click = progress.get("ducks_per_click", 1)
         self.auto_ducks = progress.get("auto_ducks", 0)
+        self.rebirths = progress.get("rebirths", 0)
+        self.rebirth_cost = progress.get("rebirth_cost", 1000000)
         self.super_ducks = progress.get("super_ducks", 0)
         self.super_duck_cost = progress.get("super_duck_cost", 1000)
         self.ultra_click_cost = progress.get("ultra_click_cost", 500)
@@ -100,26 +107,33 @@ class DuckClicker:
         self.diamond_duck_cost = progress.get("diamond_duck_cost", 50000)
         self.duck_army_cost = progress.get("duck_army_cost", 250000)
         self.duck_portal_cost = progress.get("duck_portal_cost", 1000000)
+        self.duck_bank_cost = progress.get("duck_bank_cost", 2000000)
+        self.duck_rocket_cost = progress.get("duck_rocket_cost", 10000000)
+        self.duck_empire_cost = progress.get("duck_empire_cost", 50000000)
+        self.duck_universe_cost = progress.get("duck_universe_cost", 250000000)
 
         # Main frame for duck and counter
         main_frame = tk.Frame(root, bg="#b3e5fc")
         main_frame.pack(side="left", fill="both", expand=True)
 
-        # Title label
         self.title = tk.Label(
             main_frame, text="Duck Clicker!", font=("Comic Sans MS", 40, "bold"),
             bg="#b3e5fc", fg="#ffb300"
         )
         self.title.pack(pady=(40, 10))
 
-        # Duck counter label
         self.label = tk.Label(
             main_frame, text=f"Ducks: {self.ducks}", font=("Comic Sans MS", 28, "bold"),
             bg="#b3e5fc", fg="#1976d2"
         )
         self.label.pack(pady=10)
 
-        # Cute duck (drawn with emoji and text)
+        self.rebirth_label = tk.Label(
+            main_frame, text=f"Rebirths: {self.rebirths}", font=("Comic Sans MS", 18, "bold"),
+            bg="#b3e5fc", fg="#ab47bc"
+        )
+        self.rebirth_label.pack(pady=5)
+
         self.duck_button = tk.Button(
             main_frame, text="(•ᴥ•)\n  🦆", font=("Comic Sans MS", 80, "bold"),
             command=self.click_duck,
@@ -127,33 +141,47 @@ class DuckClicker:
         )
         self.duck_button.pack(pady=20)
 
-        # Status label
         self.status = tk.Label(
             main_frame, text="", font=("Comic Sans MS", 16, "italic"),
             bg="#b3e5fc", fg="#388e3c"
         )
         self.status.pack(pady=10)
 
-        # Fun footer
         self.footer = tk.Label(
             main_frame, text="Quack your way to the top!", font=("Comic Sans MS", 16),
             bg="#b3e5fc", fg="#0288d1"
         )
         self.footer.pack(side="bottom", pady=20)
 
-        # --- Upgrades panel on the right ---
-        upgrades_frame = tk.Frame(root, bg="#e1bee7", bd=4, relief="ridge")
-        upgrades_frame.pack(side="right", fill="y", padx=20, pady=40)
+        # --- Scrollable Upgrades panel on the right ---
+        upgrades_outer = tk.Frame(root, bg="#e1bee7", bd=4, relief="ridge")
+        upgrades_outer.pack(side="right", fill="y", padx=20, pady=40)
+
+        canvas = tk.Canvas(upgrades_outer, bg="#e1bee7", highlightthickness=0)
+        scrollbar = tk.Scrollbar(upgrades_outer, orient="vertical", command=canvas.yview)
+        self.upgrades_frame = tk.Frame(canvas, bg="#e1bee7")
+
+        self.upgrades_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=self.upgrades_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
         upgrades_title = tk.Label(
-            upgrades_frame, text="Upgrades", font=("Comic Sans MS", 24, "bold"),
+            self.upgrades_frame, text="Upgrades", font=("Comic Sans MS", 24, "bold"),
             bg="#e1bee7", fg="#6a1b9a"
         )
         upgrades_title.pack(pady=(10, 20))
 
-        # Upgrade 1: Increase ducks per click
+        # --- Upgrades ---
         self.upgrade1_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_upgrade1,
@@ -161,9 +189,8 @@ class DuckClicker:
         )
         self.upgrade1_button.pack(pady=10)
 
-        # Upgrade 2: Auto Duck (ducks per second)
         self.upgrade2_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_upgrade2,
@@ -171,9 +198,8 @@ class DuckClicker:
         )
         self.upgrade2_button.pack(pady=10)
 
-        # Upgrade 3: Golden Duck (big bonus)
         self.upgrade3_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_upgrade3,
@@ -181,9 +207,8 @@ class DuckClicker:
         )
         self.upgrade3_button.pack(pady=10)
 
-        # Upgrade 4: Super Duck (adds 10 ducks/sec)
         self.super_duck_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_super_duck,
@@ -191,9 +216,8 @@ class DuckClicker:
         )
         self.super_duck_button.pack(pady=10)
 
-        # Upgrade 5: Ultra Click (10x click for 10 seconds)
         self.ultra_click_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_ultra_click,
@@ -201,9 +225,8 @@ class DuckClicker:
         )
         self.ultra_click_button.pack(pady=10)
 
-        # Upgrade 6: Mega Click (x100 for 5s)
         self.mega_click_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_mega_click,
@@ -211,9 +234,8 @@ class DuckClicker:
         )
         self.mega_click_button.pack(pady=10)
 
-        # Upgrade 7: Duck Factory (+100/sec)
         self.duck_factory_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_duck_factory,
@@ -221,9 +243,8 @@ class DuckClicker:
         )
         self.duck_factory_button.pack(pady=10)
 
-        # Upgrade 8: Duck God (+1000/sec)
         self.duck_god_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_duck_god,
@@ -231,9 +252,8 @@ class DuckClicker:
         )
         self.duck_god_button.pack(pady=10)
 
-        # Upgrade 9: Diamond Duck (+500 ducks instantly)
         self.diamond_duck_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_diamond_duck,
@@ -241,9 +261,8 @@ class DuckClicker:
         )
         self.diamond_duck_button.pack(pady=10)
 
-        # Upgrade 10: Duck Army (+5000/sec)
         self.duck_army_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_duck_army,
@@ -251,9 +270,8 @@ class DuckClicker:
         )
         self.duck_army_button.pack(pady=10)
 
-        # Upgrade 11: Duck Portal (doubles all ducks/sec)
         self.duck_portal_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_duck_portal,
@@ -261,12 +279,55 @@ class DuckClicker:
         )
         self.duck_portal_button.pack(pady=10)
 
-        # Start auto duck loop
-        self.auto_duck_loop()
+        # --- New upgrades for more fun ---
+        self.duck_bank_button = tk.Button(
+            self.upgrades_frame,
+            text=f"Duck Bank (+25000/sec)\nCost: {self.duck_bank_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_duck_bank,
+            bg="#ffe082", fg="#795548", activebackground="#fffde7", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.duck_bank_button.pack(pady=10)
 
-        # Save progress every 1 second as backup
+        self.duck_rocket_button = tk.Button(
+            self.upgrades_frame,
+            text=f"Duck Rocket (+100000/sec)\nCost: {self.duck_rocket_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_duck_rocket,
+            bg="#b0bec5", fg="#263238", activebackground="#cfd8dc", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.duck_rocket_button.pack(pady=10)
+
+        self.duck_empire_button = tk.Button(
+            self.upgrades_frame,
+            text=f"Duck Empire (+500000/sec)\nCost: {self.duck_empire_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_duck_empire,
+            bg="#ffab91", fg="#bf360c", activebackground="#ffccbc", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.duck_empire_button.pack(pady=10)
+
+        self.duck_universe_button = tk.Button(
+            self.upgrades_frame,
+            text=f"Duck Universe (+2,500,000/sec)\nCost: {self.duck_universe_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_duck_universe,
+            bg="#b388ff", fg="#311b92", activebackground="#ede7f6", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.duck_universe_button.pack(pady=10)
+
+        # --- Rebirth button ---
+        self.rebirth_button = tk.Button(
+            self.upgrades_frame,
+            text=f"REBIRTH!\nCost: {self.rebirth_cost} ducks",
+            font=("Comic Sans MS", 16, "bold"),
+            command=self.rebirth,
+            bg="#fff", fg="#ab47bc", activebackground="#f3e5f5", bd=4, relief="ridge", cursor="hand2", width=22, height=2
+        )
+        self.rebirth_button.pack(pady=20)
+
+        self.auto_duck_loop()
         self.root.after(1000, self.auto_save)
-        # Save on close
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def on_close(self):
@@ -278,12 +339,13 @@ class DuckClicker:
         self.root.after(1000, self.auto_save)
 
     def click_duck(self):
+        bonus = 1 + self.rebirths * 0.5
         if self.ultra_click_active:
-            self.ducks += self.ducks_per_click * 10
+            self.ducks += int(self.ducks_per_click * 10 * bonus)
         elif self.mega_click_active:
-            self.ducks += self.ducks_per_click * 100
+            self.ducks += int(self.ducks_per_click * 100 * bonus)
         else:
-            self.ducks += self.ducks_per_click
+            self.ducks += int(self.ducks_per_click * bonus)
         self.label.config(text=f"Ducks: {self.ducks}")
         self.status.config(text="Quack! 🦆", fg="#388e3c")
 
@@ -445,6 +507,112 @@ class DuckClicker:
             self.status.config(text="Duck Portal opened! Ducks/sec doubled!", fg="#7c4dff")
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_duck_bank(self):
+        if self.ducks >= self.duck_bank_cost:
+            self.ducks -= self.duck_bank_cost
+            self.auto_ducks += 25000
+            self.duck_bank_cost = int(self.duck_bank_cost * 2.5)
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.duck_bank_button.config(
+                text=f"Duck Bank (+25000/sec)\nCost: {self.duck_bank_cost} ducks"
+            )
+            self.status.config(text="Duck Bank built! +25000/sec!", fg="#795548")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_duck_rocket(self):
+        if self.ducks >= self.duck_rocket_cost:
+            self.ducks -= self.duck_rocket_cost
+            self.auto_ducks += 100000
+            self.duck_rocket_cost = int(self.duck_rocket_cost * 2.5)
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.duck_rocket_button.config(
+                text=f"Duck Rocket (+100000/sec)\nCost: {self.duck_rocket_cost} ducks"
+            )
+            self.status.config(text="Duck Rocket launched! +100000/sec!", fg="#263238")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_duck_empire(self):
+        if self.ducks >= self.duck_empire_cost:
+            self.ducks -= self.duck_empire_cost
+            self.auto_ducks += 500000
+            self.duck_empire_cost = int(self.duck_empire_cost * 2.5)
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.duck_empire_button.config(
+                text=f"Duck Empire (+500000/sec)\nCost: {self.duck_empire_cost} ducks"
+            )
+            self.status.config(text="Duck Empire rules! +500000/sec!", fg="#bf360c")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_duck_universe(self):
+        if self.ducks >= self.duck_universe_cost:
+            self.ducks -= self.duck_universe_cost
+            self.auto_ducks += 2500000
+            self.duck_universe_cost = int(self.duck_universe_cost * 2.5)
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.duck_universe_button.config(
+                text=f"Duck Universe (+2,500,000/sec)\nCost: {self.duck_universe_cost} ducks"
+            )
+            self.status.config(text="Duck Universe unlocked! +2,500,000/sec!", fg="#311b92")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def rebirth(self):
+        if self.ducks >= self.rebirth_cost:
+            self.rebirths += 1
+            self.ducks = 0
+            self.ducks_per_click = 1
+            self.auto_ducks = 0
+            self.super_ducks = 0
+            self.super_duck_cost = 1000
+            self.ultra_click_cost = 500
+            self.ultra_click_active = False
+            self.ultra_click_duration = 10
+            self.mega_click_cost = 5000
+            self.mega_click_active = False
+            self.mega_click_duration = 5
+            self.duck_factory_cost = 20000
+            self.duck_factory_count = 0
+            self.duck_god_cost = 100000
+            self.duck_god_count = 0
+            self.upgrade1_cost = 10
+            self.upgrade2_cost = 50
+            self.upgrade3_cost = 200
+            self.diamond_duck_cost = 50000
+            self.duck_army_cost = 250000
+            self.duck_portal_cost = 1000000
+            self.duck_bank_cost = 2000000
+            self.duck_rocket_cost = 10000000
+            self.duck_empire_cost = 50000000
+            self.duck_universe_cost = 250000000
+            self.rebirth_cost = int(self.rebirth_cost * 2.5)
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.rebirth_label.config(text=f"Rebirths: {self.rebirths}")
+            self.rebirth_button.config(
+                text=f"REBIRTH!\nCost: {self.rebirth_cost} ducks"
+            )
+            self.status.config(text=f"Rebirth! Permanent +50% ducks/click! Total rebirths: {self.rebirths}", fg="#ab47bc")
+            # Reset all upgrade buttons
+            self.upgrade1_button.config(text=f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks")
+            self.upgrade2_button.config(text=f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks")
+            self.upgrade3_button.config(text=f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks")
+            self.super_duck_button.config(text=f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks")
+            self.ultra_click_button.config(text=f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks")
+            self.mega_click_button.config(text=f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks")
+            self.duck_factory_button.config(text=f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks")
+            self.duck_god_button.config(text=f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks")
+            self.diamond_duck_button.config(text=f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks")
+            self.duck_army_button.config(text=f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks")
+            self.duck_portal_button.config(text=f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks")
+            self.duck_bank_button.config(text=f"Duck Bank (+25000/sec)\nCost: {self.duck_bank_cost} ducks")
+            self.duck_rocket_button.config(text=f"Duck Rocket (+100000/sec)\nCost: {self.duck_rocket_cost} ducks")
+            self.duck_empire_button.config(text=f"Duck Empire (+500000/sec)\nCost: {self.duck_empire_cost} ducks")
+            self.duck_universe_button.config(text=f"Duck Universe (+2,500,000/sec)\nCost: {self.duck_universe_cost} ducks")
+        else:
+            self.status.config(text="Not enough ducks to rebirth!", fg="#d32f2f")
 
     def auto_duck_loop(self):
         if self.auto_ducks > 0:
