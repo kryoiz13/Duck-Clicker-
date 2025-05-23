@@ -6,7 +6,7 @@ import json
 from tkinter import messagebox
 
 # --- AUTO-UPDATE SETTINGS ---
-UPDATE_URL = "raw.githubusercontent.com/kryoiz13/Duck-Clicker-/main/duck_clicker.py"
+UPDATE_URL = "https://raw.githubusercontent.com/kryoiz13/Duck-Clicker-/main/duck_clicker.py"
 LOCAL_FILE = os.path.abspath(__file__)
 SAVE_FILE = "savegame.json"
 
@@ -45,6 +45,9 @@ def save_progress(game):
         "upgrade1_cost": game.upgrade1_cost,
         "upgrade2_cost": game.upgrade2_cost,
         "upgrade3_cost": game.upgrade3_cost,
+        "diamond_duck_cost": getattr(game, "diamond_duck_cost", 50000),
+        "duck_army_cost": getattr(game, "duck_army_cost", 250000),
+        "duck_portal_cost": getattr(game, "duck_portal_cost", 1000000),
     }
     try:
         with open(SAVE_FILE, "w") as f:
@@ -90,6 +93,9 @@ class DuckClicker:
         self.upgrade1_cost = progress.get("upgrade1_cost", 10)
         self.upgrade2_cost = progress.get("upgrade2_cost", 50)
         self.upgrade3_cost = progress.get("upgrade3_cost", 200)
+        self.diamond_duck_cost = progress.get("diamond_duck_cost", 50000)
+        self.duck_army_cost = progress.get("duck_army_cost", 250000)
+        self.duck_portal_cost = progress.get("duck_portal_cost", 1000000)
 
         # Main frame for duck and counter
         main_frame = tk.Frame(root, bg="#b3e5fc")
@@ -220,6 +226,36 @@ class DuckClicker:
             bg="#212121", fg="#ffd600", activebackground="#616161", bd=3, relief="raised", cursor="hand2", width=22, height=2
         )
         self.duck_god_button.pack(pady=10)
+
+        # Upgrade 9: Diamond Duck (+500 ducks instantly)
+        self.diamond_duck_button = tk.Button(
+            upgrades_frame,
+            text=f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_diamond_duck,
+            bg="#b9f6ca", fg="#00695c", activebackground="#e0f2f1", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.diamond_duck_button.pack(pady=10)
+
+        # Upgrade 10: Duck Army (+5000/sec)
+        self.duck_army_button = tk.Button(
+            upgrades_frame,
+            text=f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_duck_army,
+            bg="#ff5252", fg="#fff", activebackground="#ff8a80", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.duck_army_button.pack(pady=10)
+
+        # Upgrade 11: Duck Portal (doubles all ducks/sec)
+        self.duck_portal_button = tk.Button(
+            upgrades_frame,
+            text=f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_duck_portal,
+            bg="#7c4dff", fg="#fff", activebackground="#b388ff", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.duck_portal_button.pack(pady=10)
 
         # Start auto duck loop
         self.auto_duck_loop()
@@ -364,6 +400,45 @@ class DuckClicker:
                 text=f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks"
             )
             self.status.config(text=f"Duck God ascended! Total: {self.duck_god_count}", fg="#ffd600")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_diamond_duck(self):
+        if self.ducks >= self.diamond_duck_cost:
+            self.ducks -= self.diamond_duck_cost
+            self.ducks += 500
+            self.diamond_duck_cost = int(self.diamond_duck_cost * 2.5)
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.diamond_duck_button.config(
+                text=f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks"
+            )
+            self.status.config(text="Diamond Duck! Shiny and rich!", fg="#00bfae")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_duck_army(self):
+        if self.ducks >= self.duck_army_cost:
+            self.ducks -= self.duck_army_cost
+            self.auto_ducks += 5000
+            self.duck_army_cost = int(self.duck_army_cost * 2.5)
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.duck_army_button.config(
+                text=f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks"
+            )
+            self.status.config(text="Duck Army assembled! +5000/sec!", fg="#ff5252")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_duck_portal(self):
+        if self.ducks >= self.duck_portal_cost:
+            self.ducks -= self.duck_portal_cost
+            self.auto_ducks *= 2
+            self.duck_portal_cost = int(self.duck_portal_cost * 3)
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.duck_portal_button.config(
+                text=f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks"
+            )
+            self.status.config(text="Duck Portal opened! Ducks/sec doubled!", fg="#7c4dff")
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
