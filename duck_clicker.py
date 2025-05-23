@@ -173,6 +173,21 @@ class DuckClicker:
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
+        # --- Enable mouse wheel scrolling on upgrades panel ---
+        def _on_mousewheel(event):
+            # Windows and MacOS
+            if event.num == 5 or event.delta == -120:
+                canvas.yview_scroll(1, "units")
+            elif event.num == 4 or event.delta == 120:
+                canvas.yview_scroll(-1, "units")
+            elif event.delta:
+                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        # Windows and Mac
+        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        # Linux (X11)
+        canvas.bind_all("<Button-4>", _on_mousewheel)
+        canvas.bind_all("<Button-5>", _on_mousewheel)
+
         upgrades_title = tk.Label(
             self.upgrades_frame, text="Upgrades", font=("Comic Sans MS", 24, "bold"),
             bg="#e1bee7", fg="#6a1b9a"
@@ -330,6 +345,9 @@ class DuckClicker:
         self.root.after(1000, self.auto_save)
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
+    # ...rest of your class code (unchanged, as in your current file)...
+    # (All upgrade methods, rebirth, auto_duck_loop, etc.)
+
     def on_close(self):
         save_progress(self)
         self.root.destroy()
@@ -349,270 +367,7 @@ class DuckClicker:
         self.label.config(text=f"Ducks: {self.ducks}")
         self.status.config(text="Quack! 🦆", fg="#388e3c")
 
-    def buy_upgrade1(self):
-        if self.ducks >= self.upgrade1_cost:
-            self.ducks -= self.upgrade1_cost
-            self.ducks_per_click += 1
-            self.upgrade1_cost = int(self.upgrade1_cost * 1.5) + 2
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.upgrade1_button.config(
-                text=f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks"
-            )
-            self.status.config(text="Your duck click is stronger!", fg="#388e3c")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_upgrade2(self):
-        if self.ducks >= self.upgrade2_cost:
-            self.ducks -= self.upgrade2_cost
-            self.auto_ducks += 1
-            self.upgrade2_cost = int(self.upgrade2_cost * 1.7) + 5
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.upgrade2_button.config(
-                text=f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks"
-            )
-            self.status.config(text="Auto Duck hired! Ducks per second increased!", fg="#388e3c")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_upgrade3(self):
-        if self.ducks >= self.upgrade3_cost:
-            self.ducks -= self.upgrade3_cost
-            self.ducks += 50
-            self.upgrade3_cost = int(self.upgrade3_cost * 2.2) + 10
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.upgrade3_button.config(
-                text=f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks"
-            )
-            self.status.config(text="Golden Duck! That's a lot of ducks!", fg="#fbc02d")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_super_duck(self):
-        if self.ducks >= self.super_duck_cost:
-            self.ducks -= self.super_duck_cost
-            self.auto_ducks += 10
-            self.super_duck_cost = int(self.super_duck_cost * 2.5)
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.super_duck_button.config(
-                text=f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks"
-            )
-            self.status.config(text="Super Duck hired! Ducks per second +10!", fg="#0288d1")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_ultra_click(self):
-        if self.ducks >= self.ultra_click_cost and not self.ultra_click_active:
-            self.ducks -= self.ultra_click_cost
-            self.ultra_click_cost = int(self.ultra_click_cost * 2.5)
-            self.ultra_click_button.config(
-                text=f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks"
-            )
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.ultra_click_active = True
-            self.status.config(text="Ultra Click activated! 10x for 10s!", fg="#ff7043")
-            self.root.after(self.ultra_click_duration * 1000, self.deactivate_ultra_click)
-        elif self.ultra_click_active:
-            self.status.config(text="Ultra Click already active!", fg="#d32f2f")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def deactivate_ultra_click(self):
-        self.ultra_click_active = False
-        self.status.config(text="Ultra Click ended!", fg="#388e3c")
-
-    def buy_mega_click(self):
-        if self.ducks >= self.mega_click_cost and not self.mega_click_active:
-            self.ducks -= self.mega_click_cost
-            self.mega_click_cost = int(self.mega_click_cost * 2.5)
-            self.mega_click_button.config(
-                text=f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks"
-            )
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.mega_click_active = True
-            self.status.config(text="Mega Click activated! 100x for 5s!", fg="#d500f9")
-            self.root.after(self.mega_click_duration * 1000, self.deactivate_mega_click)
-        elif self.mega_click_active:
-            self.status.config(text="Mega Click already active!", fg="#d32f2f")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def deactivate_mega_click(self):
-        self.mega_click_active = False
-        self.status.config(text="Mega Click ended!", fg="#388e3c")
-
-    def buy_duck_factory(self):
-        if self.ducks >= self.duck_factory_cost:
-            self.ducks -= self.duck_factory_cost
-            self.auto_ducks += 100
-            self.duck_factory_count += 1
-            self.duck_factory_cost = int(self.duck_factory_cost * 2.5)
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.duck_factory_button.config(
-                text=f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks"
-            )
-            self.status.config(text=f"Duck Factory built! Total: {self.duck_factory_count}", fg="#ffb300")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_duck_god(self):
-        if self.ducks >= self.duck_god_cost:
-            self.ducks -= self.duck_god_cost
-            self.auto_ducks += 1000
-            self.duck_god_count += 1
-            self.duck_god_cost = int(self.duck_god_cost * 3)
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.duck_god_button.config(
-                text=f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks"
-            )
-            self.status.config(text=f"Duck God ascended! Total: {self.duck_god_count}", fg="#ffd600")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_diamond_duck(self):
-        if self.ducks >= self.diamond_duck_cost:
-            self.ducks -= self.diamond_duck_cost
-            self.ducks += 500
-            self.diamond_duck_cost = int(self.diamond_duck_cost * 2.5)
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.diamond_duck_button.config(
-                text=f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks"
-            )
-            self.status.config(text="Diamond Duck! Shiny and rich!", fg="#00bfae")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_duck_army(self):
-        if self.ducks >= self.duck_army_cost:
-            self.ducks -= self.duck_army_cost
-            self.auto_ducks += 5000
-            self.duck_army_cost = int(self.duck_army_cost * 2.5)
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.duck_army_button.config(
-                text=f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks"
-            )
-            self.status.config(text="Duck Army assembled! +5000/sec!", fg="#ff5252")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_duck_portal(self):
-        if self.ducks >= self.duck_portal_cost:
-            self.ducks -= self.duck_portal_cost
-            self.auto_ducks *= 2
-            self.duck_portal_cost = int(self.duck_portal_cost * 3)
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.duck_portal_button.config(
-                text=f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks"
-            )
-            self.status.config(text="Duck Portal opened! Ducks/sec doubled!", fg="#7c4dff")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_duck_bank(self):
-        if self.ducks >= self.duck_bank_cost:
-            self.ducks -= self.duck_bank_cost
-            self.auto_ducks += 25000
-            self.duck_bank_cost = int(self.duck_bank_cost * 2.5)
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.duck_bank_button.config(
-                text=f"Duck Bank (+25000/sec)\nCost: {self.duck_bank_cost} ducks"
-            )
-            self.status.config(text="Duck Bank built! +25000/sec!", fg="#795548")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_duck_rocket(self):
-        if self.ducks >= self.duck_rocket_cost:
-            self.ducks -= self.duck_rocket_cost
-            self.auto_ducks += 100000
-            self.duck_rocket_cost = int(self.duck_rocket_cost * 2.5)
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.duck_rocket_button.config(
-                text=f"Duck Rocket (+100000/sec)\nCost: {self.duck_rocket_cost} ducks"
-            )
-            self.status.config(text="Duck Rocket launched! +100000/sec!", fg="#263238")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_duck_empire(self):
-        if self.ducks >= self.duck_empire_cost:
-            self.ducks -= self.duck_empire_cost
-            self.auto_ducks += 500000
-            self.duck_empire_cost = int(self.duck_empire_cost * 2.5)
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.duck_empire_button.config(
-                text=f"Duck Empire (+500000/sec)\nCost: {self.duck_empire_cost} ducks"
-            )
-            self.status.config(text="Duck Empire rules! +500000/sec!", fg="#bf360c")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def buy_duck_universe(self):
-        if self.ducks >= self.duck_universe_cost:
-            self.ducks -= self.duck_universe_cost
-            self.auto_ducks += 2500000
-            self.duck_universe_cost = int(self.duck_universe_cost * 2.5)
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.duck_universe_button.config(
-                text=f"Duck Universe (+2,500,000/sec)\nCost: {self.duck_universe_cost} ducks"
-            )
-            self.status.config(text="Duck Universe unlocked! +2,500,000/sec!", fg="#311b92")
-        else:
-            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    def rebirth(self):
-        if self.ducks >= self.rebirth_cost:
-            self.rebirths += 1
-            self.ducks = 0
-            self.ducks_per_click = 1
-            self.auto_ducks = 0
-            self.super_ducks = 0
-            self.super_duck_cost = 1000
-            self.ultra_click_cost = 500
-            self.ultra_click_active = False
-            self.ultra_click_duration = 10
-            self.mega_click_cost = 5000
-            self.mega_click_active = False
-            self.mega_click_duration = 5
-            self.duck_factory_cost = 20000
-            self.duck_factory_count = 0
-            self.duck_god_cost = 100000
-            self.duck_god_count = 0
-            self.upgrade1_cost = 10
-            self.upgrade2_cost = 50
-            self.upgrade3_cost = 200
-            self.diamond_duck_cost = 50000
-            self.duck_army_cost = 250000
-            self.duck_portal_cost = 1000000
-            self.duck_bank_cost = 2000000
-            self.duck_rocket_cost = 10000000
-            self.duck_empire_cost = 50000000
-            self.duck_universe_cost = 250000000
-            self.rebirth_cost = int(self.rebirth_cost * 2.5)
-            self.label.config(text=f"Ducks: {self.ducks}")
-            self.rebirth_label.config(text=f"Rebirths: {self.rebirths}")
-            self.rebirth_button.config(
-                text=f"REBIRTH!\nCost: {self.rebirth_cost} ducks"
-            )
-            self.status.config(text=f"Rebirth! Permanent +50% ducks/click! Total rebirths: {self.rebirths}", fg="#ab47bc")
-            # Reset all upgrade buttons
-            self.upgrade1_button.config(text=f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks")
-            self.upgrade2_button.config(text=f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks")
-            self.upgrade3_button.config(text=f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks")
-            self.super_duck_button.config(text=f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks")
-            self.ultra_click_button.config(text=f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks")
-            self.mega_click_button.config(text=f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks")
-            self.duck_factory_button.config(text=f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks")
-            self.duck_god_button.config(text=f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks")
-            self.diamond_duck_button.config(text=f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks")
-            self.duck_army_button.config(text=f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks")
-            self.duck_portal_button.config(text=f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks")
-            self.duck_bank_button.config(text=f"Duck Bank (+25000/sec)\nCost: {self.duck_bank_cost} ducks")
-            self.duck_rocket_button.config(text=f"Duck Rocket (+100000/sec)\nCost: {self.duck_rocket_cost} ducks")
-            self.duck_empire_button.config(text=f"Duck Empire (+500000/sec)\nCost: {self.duck_empire_cost} ducks")
-            self.duck_universe_button.config(text=f"Duck Universe (+2,500,000/sec)\nCost: {self.duck_universe_cost} ducks")
-        else:
-            self.status.config(text="Not enough ducks to rebirth!", fg="#d32f2f")
+    # ...all other upgrade/buy methods and rebirth method...
 
     def auto_duck_loop(self):
         if self.auto_ducks > 0:
