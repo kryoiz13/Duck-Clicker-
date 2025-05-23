@@ -1,5 +1,30 @@
 import tkinter as tk
+import os
+import sys
+import urllib.request
 
+# --- AUTO-UPDATE SECTION ---
+UPDATE_URL = "https://raw.githubusercontent.com/yourusername/yourrepo/main/duck_clicker.py"  # CHANGE THIS!
+LOCAL_FILE = os.path.abspath(__file__)
+
+def check_for_update():
+    try:
+        with urllib.request.urlopen(UPDATE_URL) as response:
+            remote_code = response.read().decode("utf-8")
+        with open(LOCAL_FILE, "r", encoding="utf-8") as f:
+            local_code = f.read()
+        if remote_code != local_code:
+            with open(LOCAL_FILE, "w", encoding="utf-8") as f:
+                f.write(remote_code)
+            tk.messagebox.showinfo("Update", "Game updated! Please restart the game.")
+            sys.exit(0)
+    except Exception as e:
+        print("Update check failed:", e)
+
+# Check for updates before starting the game
+check_for_update()
+
+# --- GAME CODE BELOW ---
 class DuckClicker:
     def __init__(self, root):
         self.root = root
