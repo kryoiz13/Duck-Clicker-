@@ -10,13 +10,17 @@ UPDATE_URL = "https://raw.githubusercontent.com/kryoiz13/Duck-Clicker-/main/duck
 LOCAL_FILE = os.path.abspath(__file__)
 SAVE_FILE = "savegame.json"
 
+def normalize_line_endings(s):
+    return s.replace('\r\n', '\n').replace('\r', '\n')
+
 def check_for_update():
     try:
         with urllib.request.urlopen(UPDATE_URL) as response:
             remote_code = response.read().decode("utf-8")
         with open(LOCAL_FILE, "r", encoding="utf-8") as f:
             local_code = f.read()
-        if remote_code != local_code:
+        # Normalize line endings for both
+        if normalize_line_endings(remote_code) != normalize_line_endings(local_code):
             with open(LOCAL_FILE, "w", encoding="utf-8") as f:
                 f.write(remote_code)
             tk.Tk().withdraw()
@@ -50,7 +54,7 @@ def save_progress(game):
         "duck_portal_cost": getattr(game, "duck_portal_cost", 1000000),
     }
     try:
-        with open(SAVE_FILE, "w") as f:
+        with open(SAVE_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f)
     except Exception as e:
         print("Save failed:", e)
@@ -58,7 +62,7 @@ def save_progress(game):
 def load_progress():
     if os.path.exists(SAVE_FILE):
         try:
-            with open(SAVE_FILE, "r") as f:
+            with open(SAVE_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             return {}
