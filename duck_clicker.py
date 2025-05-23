@@ -318,7 +318,8 @@ class DuckClicker:
 
     # ... rest of your methods remain unchanged ...
     # (All your upgrade/buy/rebirth/loop methods are below, as in your current file)
-    if __name__ == "__main__":
+
+if __name__ == "__main__":
     root = tk.Tk()
     game = DuckClicker(root)
     root.mainloop()
