@@ -80,7 +80,7 @@ class DuckClicker:
         self.root = root
         self.root.title("Duck Clicker 🦆")
         self.root.attributes('-fullscreen', True)
-        self.root.configure(bg="#b3e5fc")
+        self.root.configure(bg="#232946")
 
         # --- Load progress ---
         progress = load_progress()
@@ -113,240 +113,209 @@ class DuckClicker:
         self.duck_universe_cost = progress.get("duck_universe_cost", 250000000)
 
         # Main frame for duck and counter
-        main_frame = tk.Frame(root, bg="#b3e5fc")
+        main_frame = tk.Frame(root, bg="#232946")
         main_frame.pack(side="left", fill="both", expand=True)
 
         self.title = tk.Label(
-            main_frame, text="Duck Clicker!", font=("Comic Sans MS", 40, "bold"),
-            bg="#b3e5fc", fg="#ffb300"
+            main_frame, text="Duck Clicker!", font=("Segoe UI", 44, "bold"),
+            bg="#232946", fg="#eebbc3"
         )
         self.title.pack(pady=(40, 10))
 
         self.label = tk.Label(
-            main_frame, text=f"Ducks: {self.ducks}", font=("Comic Sans MS", 28, "bold"),
-            bg="#b3e5fc", fg="#1976d2"
+            main_frame, text=f"Ducks: {self.ducks}", font=("Segoe UI", 28, "bold"),
+            bg="#232946", fg="#fffffe"
         )
         self.label.pack(pady=10)
 
         self.rebirth_label = tk.Label(
-            main_frame, text=f"Rebirths: {self.rebirths}", font=("Comic Sans MS", 18, "bold"),
-            bg="#b3e5fc", fg="#ab47bc"
+            main_frame, text=f"Rebirths: {self.rebirths}", font=("Segoe UI", 18, "bold"),
+            bg="#232946", fg="#eebbc3"
         )
         self.rebirth_label.pack(pady=5)
 
         self.duck_button = tk.Button(
-            main_frame, text="(•ᴥ•)\n  🦆", font=("Comic Sans MS", 80, "bold"),
+            main_frame, text="(•ᴥ•)\n  🦆", font=("Segoe UI", 80, "bold"),
             command=self.click_duck,
-            bg="#fffde7", activebackground="#ffe082", bd=6, relief="ridge", cursor="hand2", fg="#ffb300"
+            bg="#eebbc3", activebackground="#fffffe", bd=6, relief="ridge", cursor="hand2", fg="#232946"
         )
         self.duck_button.pack(pady=20)
 
         self.status = tk.Label(
-            main_frame, text="", font=("Comic Sans MS", 16, "italic"),
-            bg="#b3e5fc", fg="#388e3c"
+            main_frame, text="", font=("Segoe UI", 16, "italic"),
+            bg="#232946", fg="#b8c1ec"
         )
         self.status.pack(pady=10)
 
         self.footer = tk.Label(
-            main_frame, text="Quack your way to the top!", font=("Comic Sans MS", 16),
-            bg="#b3e5fc", fg="#0288d1"
+            main_frame, text="Quack your way to the top!", font=("Segoe UI", 16),
+            bg="#232946", fg="#b8c1ec"
         )
         self.footer.pack(side="bottom", pady=20)
 
-        # --- Scrollable Upgrades panel on the right ---
-        upgrades_outer = tk.Frame(root, bg="#e1bee7", bd=4, relief="ridge")
-        upgrades_outer.pack(side="right", fill="y", padx=20, pady=40)
+        # --- Modern Scrollable Upgrades panel on the right ---
+        upgrades_outer = tk.Frame(root, bg="#232946", bd=0, relief="flat")
+        upgrades_outer.pack(side="right", fill="y", padx=0, pady=0)
 
-        canvas = tk.Canvas(upgrades_outer, bg="#e1bee7", highlightthickness=0)
-        scrollbar = tk.Scrollbar(upgrades_outer, orient="vertical", command=canvas.yview)
-        self.upgrades_frame = tk.Frame(canvas, bg="#e1bee7")
+        canvas = tk.Canvas(
+            upgrades_outer, bg="#232946", highlightthickness=0, bd=0, relief="flat"
+        )
+        self.upgrades_frame = tk.Frame(canvas, bg="#393e6c")
 
         self.upgrades_frame.bind(
             "<Configure>",
-            lambda e: canvas.configure(
-                scrollregion=canvas.bbox("all")
-            )
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
         )
 
         canvas.create_window((0, 0), window=self.upgrades_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
         canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
 
-        # --- Enable mouse wheel scrolling on upgrades panel ---
+        # --- Mouse wheel scroll anywhere on upgrades panel ---
         def _on_mousewheel(event):
-            # Windows and MacOS
-            if event.num == 5 or event.delta == -120:
-                canvas.yview_scroll(1, "units")
-            elif event.num == 4 or event.delta == 120:
-                canvas.yview_scroll(-1, "units")
-            elif event.delta:
-                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-        # Windows and Mac
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         canvas.bind_all("<MouseWheel>", _on_mousewheel)
-        # Linux (X11)
-        canvas.bind_all("<Button-4>", _on_mousewheel)
-        canvas.bind_all("<Button-5>", _on_mousewheel)
+        self.upgrades_frame.bind("<Enter>", lambda e: canvas.bind_all("<MouseWheel>", _on_mousewheel))
+        self.upgrades_frame.bind("<Leave>", lambda e: canvas.unbind_all("<MouseWheel>"))
 
         upgrades_title = tk.Label(
-            self.upgrades_frame, text="Upgrades", font=("Comic Sans MS", 24, "bold"),
-            bg="#e1bee7", fg="#6a1b9a"
+            self.upgrades_frame, text="Upgrades", font=("Segoe UI", 26, "bold"),
+            bg="#393e6c", fg="#eebbc3", pady=10
         )
-        upgrades_title.pack(pady=(10, 20))
+        upgrades_title.pack(pady=(10, 10))
 
-        # --- Upgrades ---
-        self.upgrade1_button = tk.Button(
-            self.upgrades_frame,
-            text=f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_upgrade1,
-            bg="#ffd54f", fg="#6d4c41", activebackground="#ffe082", bd=3, relief="raised", cursor="hand2", width=22, height=2
-        )
-        self.upgrade1_button.pack(pady=10)
+        # --- Helper for pretty buttons ---
+        def pretty_button(parent, text, command):
+            return tk.Button(
+                parent,
+                text=text,
+                font=("Segoe UI", 13, "bold"),
+                command=command,
+                bg="#eebbc3", fg="#232946",
+                activebackground="#f6c9d0", activeforeground="#232946",
+                bd=0, relief="flat", cursor="hand2",
+                wraplength=220, justify="center", height=3, width=22,
+                highlightthickness=0
+            )
 
-        self.upgrade2_button = tk.Button(
+        # --- Upgrades (use pretty_button for all) ---
+        self.upgrade1_button = pretty_button(
             self.upgrades_frame,
-            text=f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_upgrade2,
-            bg="#aed581", fg="#33691e", activebackground="#dcedc8", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks",
+            self.buy_upgrade1
         )
-        self.upgrade2_button.pack(pady=10)
+        self.upgrade1_button.pack(pady=7)
 
-        self.upgrade3_button = tk.Button(
+        self.upgrade2_button = pretty_button(
             self.upgrades_frame,
-            text=f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_upgrade3,
-            bg="#fff176", fg="#f57c00", activebackground="#ffe082", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks",
+            self.buy_upgrade2
         )
-        self.upgrade3_button.pack(pady=10)
+        self.upgrade2_button.pack(pady=7)
 
-        self.super_duck_button = tk.Button(
+        self.upgrade3_button = pretty_button(
             self.upgrades_frame,
-            text=f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_super_duck,
-            bg="#81d4fa", fg="#01579b", activebackground="#b3e5fc", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks",
+            self.buy_upgrade3
         )
-        self.super_duck_button.pack(pady=10)
+        self.upgrade3_button.pack(pady=7)
 
-        self.ultra_click_button = tk.Button(
+        self.super_duck_button = pretty_button(
             self.upgrades_frame,
-            text=f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_ultra_click,
-            bg="#ff8a65", fg="#4e342e", activebackground="#ffe0b2", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks",
+            self.buy_super_duck
         )
-        self.ultra_click_button.pack(pady=10)
+        self.super_duck_button.pack(pady=7)
 
-        self.mega_click_button = tk.Button(
+        self.ultra_click_button = pretty_button(
             self.upgrades_frame,
-            text=f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_mega_click,
-            bg="#d500f9", fg="#fff", activebackground="#ea80fc", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks",
+            self.buy_ultra_click
         )
-        self.mega_click_button.pack(pady=10)
+        self.ultra_click_button.pack(pady=7)
 
-        self.duck_factory_button = tk.Button(
+        self.mega_click_button = pretty_button(
             self.upgrades_frame,
-            text=f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_duck_factory,
-            bg="#ffb300", fg="#4e342e", activebackground="#ffe082", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks",
+            self.buy_mega_click
         )
-        self.duck_factory_button.pack(pady=10)
+        self.mega_click_button.pack(pady=7)
 
-        self.duck_god_button = tk.Button(
+        self.duck_factory_button = pretty_button(
             self.upgrades_frame,
-            text=f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_duck_god,
-            bg="#212121", fg="#ffd600", activebackground="#616161", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks",
+            self.buy_duck_factory
         )
-        self.duck_god_button.pack(pady=10)
+        self.duck_factory_button.pack(pady=7)
 
-        self.diamond_duck_button = tk.Button(
+        self.duck_god_button = pretty_button(
             self.upgrades_frame,
-            text=f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_diamond_duck,
-            bg="#b9f6ca", fg="#00695c", activebackground="#e0f2f1", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks",
+            self.buy_duck_god
         )
-        self.diamond_duck_button.pack(pady=10)
+        self.duck_god_button.pack(pady=7)
 
-        self.duck_army_button = tk.Button(
+        self.diamond_duck_button = pretty_button(
             self.upgrades_frame,
-            text=f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_duck_army,
-            bg="#ff5252", fg="#fff", activebackground="#ff8a80", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks",
+            self.buy_diamond_duck
         )
-        self.duck_army_button.pack(pady=10)
+        self.diamond_duck_button.pack(pady=7)
 
-        self.duck_portal_button = tk.Button(
+        self.duck_army_button = pretty_button(
             self.upgrades_frame,
-            text=f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_duck_portal,
-            bg="#7c4dff", fg="#fff", activebackground="#b388ff", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks",
+            self.buy_duck_army
         )
-        self.duck_portal_button.pack(pady=10)
+        self.duck_army_button.pack(pady=7)
 
-        # --- New upgrades for more fun ---
-        self.duck_bank_button = tk.Button(
+        self.duck_portal_button = pretty_button(
             self.upgrades_frame,
-            text=f"Duck Bank (+25000/sec)\nCost: {self.duck_bank_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_duck_bank,
-            bg="#ffe082", fg="#795548", activebackground="#fffde7", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks",
+            self.buy_duck_portal
         )
-        self.duck_bank_button.pack(pady=10)
+        self.duck_portal_button.pack(pady=7)
 
-        self.duck_rocket_button = tk.Button(
+        self.duck_bank_button = pretty_button(
             self.upgrades_frame,
-            text=f"Duck Rocket (+100000/sec)\nCost: {self.duck_rocket_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_duck_rocket,
-            bg="#b0bec5", fg="#263238", activebackground="#cfd8dc", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Duck Bank (+25000/sec)\nCost: {self.duck_bank_cost} ducks",
+            self.buy_duck_bank
         )
-        self.duck_rocket_button.pack(pady=10)
+        self.duck_bank_button.pack(pady=7)
 
-        self.duck_empire_button = tk.Button(
+        self.duck_rocket_button = pretty_button(
             self.upgrades_frame,
-            text=f"Duck Empire (+500000/sec)\nCost: {self.duck_empire_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_duck_empire,
-            bg="#ffab91", fg="#bf360c", activebackground="#ffccbc", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Duck Rocket (+100000/sec)\nCost: {self.duck_rocket_cost} ducks",
+            self.buy_duck_rocket
         )
-        self.duck_empire_button.pack(pady=10)
+        self.duck_rocket_button.pack(pady=7)
 
-        self.duck_universe_button = tk.Button(
+        self.duck_empire_button = pretty_button(
             self.upgrades_frame,
-            text=f"Duck Universe (+2,500,000/sec)\nCost: {self.duck_universe_cost} ducks",
-            font=("Comic Sans MS", 14, "bold"),
-            command=self.buy_duck_universe,
-            bg="#b388ff", fg="#311b92", activebackground="#ede7f6", bd=3, relief="raised", cursor="hand2", width=22, height=2
+            f"Duck Empire (+500000/sec)\nCost: {self.duck_empire_cost} ducks",
+            self.buy_duck_empire
         )
-        self.duck_universe_button.pack(pady=10)
+        self.duck_empire_button.pack(pady=7)
 
-        # --- Rebirth button ---
-        self.rebirth_button = tk.Button(
+        self.duck_universe_button = pretty_button(
             self.upgrades_frame,
-            text=f"REBIRTH!\nCost: {self.rebirth_cost} ducks",
-            font=("Comic Sans MS", 16, "bold"),
-            command=self.rebirth,
-            bg="#fff", fg="#ab47bc", activebackground="#f3e5f5", bd=4, relief="ridge", cursor="hand2", width=22, height=2
+            f"Duck Universe (+2,500,000/sec)\nCost: {self.duck_universe_cost} ducks",
+            self.buy_duck_universe
         )
-        self.rebirth_button.pack(pady=20)
+        self.duck_universe_button.pack(pady=7)
+
+        self.rebirth_button = pretty_button(
+            self.upgrades_frame,
+            f"REBIRTH!\nCost: {self.rebirth_cost} ducks",
+            self.rebirth
+        )
+        self.rebirth_button.config(font=("Segoe UI", 15, "bold"), bg="#f6c9d0", fg="#232946", height=3)
+        self.rebirth_button.pack(pady=18)
 
         self.auto_duck_loop()
         self.root.after(1000, self.auto_save)
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
-    # ...rest of your class code (unchanged, as in your current file)...
-    # (All upgrade methods, rebirth, auto_duck_loop, etc.)
+    # --- All your upgrade/buy/rebirth/loop methods go here (unchanged from your current code) ---
 
     def on_close(self):
         save_progress(self)
@@ -365,9 +334,9 @@ class DuckClicker:
         else:
             self.ducks += int(self.ducks_per_click * bonus)
         self.label.config(text=f"Ducks: {self.ducks}")
-        self.status.config(text="Quack! 🦆", fg="#388e3c")
+        self.status.config(text="Quack! 🦆", fg="#b8c1ec")
 
-    # ...all other upgrade/buy methods and rebirth method...
+    # ...all other upgrade/buy methods and rebirth method (as in your current code)...
 
     def auto_duck_loop(self):
         if self.auto_ducks > 0:
