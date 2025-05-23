@@ -6,7 +6,7 @@ import json
 from tkinter import messagebox
 
 # --- AUTO-UPDATE SETTINGS ---
-UPDATE_URL = "https://raw.githubusercontent.com/kryoiz13/Duck-Clicker-/main/duck_clicker.py"
+UPDATE_URL = "https://raw.githubusercontent.com/kryoiz13/Duck-Clicker-/refs/heads/main/duck_clicker.py"
 LOCAL_FILE = os.path.abspath(__file__)
 SAVE_FILE = "savegame.json"
 
