@@ -413,6 +413,7 @@ class DuckClicker:
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
+    # --- All missing upgrade methods below ---
     def buy_super_duck(self):
         if self.ducks >= self.super_duck_cost:
             self.ducks -= self.super_duck_cost
