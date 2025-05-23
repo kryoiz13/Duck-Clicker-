@@ -250,84 +250,84 @@ class DuckClicker:
         self.super_duck_button = pretty_button(
             self.upgrades_frame,
             f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks",
-            self.buy_super_duck
+            self.buy_super_duck if hasattr(self, 'buy_super_duck') else lambda: None
         )
         self.super_duck_button.pack(pady=7)
 
         self.ultra_click_button = pretty_button(
             self.upgrades_frame,
             f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks",
-            self.buy_ultra_click
+            self.buy_ultra_click if hasattr(self, 'buy_ultra_click') else lambda: None
         )
         self.ultra_click_button.pack(pady=7)
 
         self.mega_click_button = pretty_button(
             self.upgrades_frame,
             f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks",
-            self.buy_mega_click
+            self.buy_mega_click if hasattr(self, 'buy_mega_click') else lambda: None
         )
         self.mega_click_button.pack(pady=7)
 
         self.duck_factory_button = pretty_button(
             self.upgrades_frame,
             f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks",
-            self.buy_duck_factory
+            self.buy_duck_factory if hasattr(self, 'buy_duck_factory') else lambda: None
         )
         self.duck_factory_button.pack(pady=7)
 
         self.duck_god_button = pretty_button(
             self.upgrades_frame,
             f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks",
-            self.buy_duck_god
+            self.buy_duck_god if hasattr(self, 'buy_duck_god') else lambda: None
         )
         self.duck_god_button.pack(pady=7)
 
         self.diamond_duck_button = pretty_button(
             self.upgrades_frame,
             f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks",
-            self.buy_diamond_duck
+            self.buy_diamond_duck if hasattr(self, 'buy_diamond_duck') else lambda: None
         )
         self.diamond_duck_button.pack(pady=7)
 
         self.duck_army_button = pretty_button(
             self.upgrades_frame,
             f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks",
-            self.buy_duck_army
+            self.buy_duck_army if hasattr(self, 'buy_duck_army') else lambda: None
         )
         self.duck_army_button.pack(pady=7)
 
         self.duck_portal_button = pretty_button(
             self.upgrades_frame,
             f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks",
-            self.buy_duck_portal
+            self.buy_duck_portal if hasattr(self, 'buy_duck_portal') else lambda: None
         )
         self.duck_portal_button.pack(pady=7)
 
         self.duck_bank_button = pretty_button(
             self.upgrades_frame,
             f"Duck Bank (+25000/sec)\nCost: {self.duck_bank_cost} ducks",
-            self.buy_duck_bank
+            self.buy_duck_bank if hasattr(self, 'buy_duck_bank') else lambda: None
         )
         self.duck_bank_button.pack(pady=7)
 
         self.duck_rocket_button = pretty_button(
             self.upgrades_frame,
             f"Duck Rocket (+100000/sec)\nCost: {self.duck_rocket_cost} ducks",
-            self.buy_duck_rocket
+            self.buy_duck_rocket if hasattr(self, 'buy_duck_rocket') else lambda: None
         )
         self.duck_rocket_button.pack(pady=7)
 
         self.duck_empire_button = pretty_button(
             self.upgrades_frame,
             f"Duck Empire (+500000/sec)\nCost: {self.duck_empire_cost} ducks",
-            self.buy_duck_empire
+            self.buy_duck_empire if hasattr(self, 'buy_duck_empire') else lambda: None
         )
         self.duck_empire_button.pack(pady=7)
 
         self.duck_universe_button = pretty_button(
             self.upgrades_frame,
             f"Duck Universe (+2,500,000/sec)\nCost: {self.duck_universe_cost} ducks",
-            self.buy_duck_universe
+            self.buy_duck_universe if hasattr(self, 'buy_duck_universe') else lambda: None
         )
         self.duck_universe_button.pack(pady=7)
 
@@ -402,8 +402,6 @@ class DuckClicker:
             self.status.config(text="Golden Duck! That's a lot of ducks!", fg="#fbc02d")
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
-
-    # ... All your other buy_xxx methods (super_duck, ultra_click, etc.) ...
 
     def buy_extra_upgrade(self, idx):
         if self.ducks >= self.extra_upgrade_costs[idx]:
