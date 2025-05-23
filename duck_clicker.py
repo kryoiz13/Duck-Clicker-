@@ -5,24 +5,15 @@ import sys
 import urllib.request
 import json
 
-# --- BACKGROUND MUSIC (Molière) ---
+# --- BACKGROUND MUSIC (local MIDI file) ---
 import threading
 import platform
 if platform.system() == "Windows":
     import winsound
 
 def play_background_music():
-    # Download and play a short Molière-style classical music MIDI (royalty free)
-    # You can replace this URL with any royalty-free classical MIDI file
-    music_url = "https://cdn.pixabay.com/audio/2022/10/16/audio_12b7e7f6e7.mid"
-    music_file = "background_music.mid"
-    if not os.path.exists(music_file):
-        try:
-            urllib.request.urlretrieve(music_url, music_file)
-        except Exception:
-            return  # Fail silently if no internet
     try:
-        winsound.PlaySound(music_file, winsound.SND_ASYNC | winsound.SND_LOOP)
+        winsound.PlaySound("background_music.mid", winsound.SND_ASYNC | winsound.SND_LOOP)
     except Exception:
         pass
 
@@ -703,6 +694,12 @@ class DuckClicker:
 
     def on_close(self):
         save_progress(self)
+        # Stop background music on close (Windows only)
+        if platform.system() == "Windows":
+            try:
+                winsound.PlaySound(None, winsound.SND_PURGE)
+            except Exception:
+                pass
         self.root.destroy()
 
     def auto_save(self):
@@ -712,5 +709,4 @@ class DuckClicker:
 if __name__ == "__main__":
     root = tk.Tk()
     game = DuckClicker(root)
-    root.mainloop() 
-
+    root.mainloop()
