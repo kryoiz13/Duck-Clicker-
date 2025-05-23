@@ -116,8 +116,10 @@ class DuckClicker:
         )
         self.stats_auto_label.pack(side="left", padx=(0, 40))
 
-        # --- ADMIN PANEL (only for lpeth) ---
-        if os.environ.get("USERNAME", "") == "lpeth":
+        # --- ADMIN PANEL (enabled by local file, safe for GitHub) ---
+        show_admin = os.path.exists("admin.txt")  # <-- Easiest and safest method
+
+        if show_admin:
             admin_frame = tk.Frame(self.main_frame, bg="#232946")
             admin_frame.pack(side="top", anchor="ne", padx=10, pady=5)
             tk.Label(
