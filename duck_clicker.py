@@ -132,6 +132,10 @@ class DuckClicker:
                 admin_frame, text="Add Ducks", font=("Segoe UI", 10, "bold"),
                 command=self.admin_add_ducks, bg="#eebbc3", fg="#232946"
             ).pack(side="left", padx=(5, 0))
+            tk.Button(
+                admin_frame, text="Reset Ducks", font=("Segoe UI", 10, "bold"),
+                command=self.admin_reset_ducks, bg="#f44336", fg="#fffffe"
+            ).pack(side="left", padx=(10, 0))
 
         # --- Load progress ---
         progress = load_progress()
@@ -656,6 +660,11 @@ class DuckClicker:
             self.status.config(text=f"Admin: Added {abbreviate(amount)} ducks.", fg="#f44336")
         except Exception:
             self.status.config(text="Admin: Invalid number!", fg="#f44336")
+
+    def admin_reset_ducks(self):
+        self.ducks = 0
+        self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
+        self.status.config(text="Admin: Ducks reset to 0.", fg="#f44336")
 
     def on_close(self):
         save_progress(self)
