@@ -116,8 +116,8 @@ class DuckClicker:
         )
         self.stats_auto_label.pack(side="left", padx=(0, 40))
 
-        # --- ADMIN PANEL (enabled by local file, safe for GitHub) ---
-        show_admin = os.path.exists("admin.txt")  # <-- Easiest and safest method
+        # --- ADMIN PANEL (only for your Windows username) ---
+        show_admin = os.environ.get("USERNAME", "").lower() == "lpeth"
 
         if show_admin:
             admin_frame = tk.Frame(self.main_frame, bg="#232946")
