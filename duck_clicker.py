@@ -76,6 +76,17 @@ def load_progress():
 
 check_for_update()
 
+def abbreviate(n):
+    # Abbreviate numbers: 1.2K, 2.5M, 3.1B, etc.
+    n = float(n)
+    for unit in ['','K','M','B','T','Q']:
+        if abs(n) < 1000:
+            if unit == '':
+                return f"{int(n)}"
+            return f"{n:.1f}{unit}"
+        n /= 1000.0
+    return f"{n:.1f}Q"
+
 class DuckClicker:
     def __init__(self, root):
         self.root = root
@@ -150,7 +161,7 @@ class DuckClicker:
         self.title.pack(pady=(40, 10))
 
         self.label = tk.Label(
-            main_frame, text=f"Ducks: {self.ducks}", font=("Segoe UI", 28, "bold"),
+            main_frame, text=f"Ducks: {abbreviate(self.ducks)}", font=("Segoe UI", 28, "bold"),
             bg="#232946", fg="#fffffe"
         )
         self.label.pack(pady=10)
@@ -216,138 +227,139 @@ class DuckClicker:
             return tk.Button(
                 parent,
                 text=text,
-                font=("Segoe UI", 13, "bold"),
+                font=("Segoe UI", 15, "bold"),
                 command=command,
                 bg="#eebbc3", fg="#232946",
-                activebackground="#f6c9d0", activeforeground="#232946",
+                activebackground="#fffffe", activeforeground="#232946",
                 bd=0, relief="flat", cursor="hand2",
-                wraplength=220, justify="center", height=3, width=22,
+                wraplength=200, justify="center", height=2, width=20,
                 highlightthickness=0
             )
 
         # --- Upgrades (use pretty_button for all) ---
         self.upgrade1_button = pretty_button(
             self.upgrades_frame,
-            f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks",
+            f"+1/click | {abbreviate(self.upgrade1_cost)}",
             self.buy_upgrade1
         )
-        self.upgrade1_button.pack(pady=7)
+        self.upgrade1_button.pack(pady=4)
 
         self.upgrade2_button = pretty_button(
             self.upgrades_frame,
-            f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks",
+            f"+1/sec | {abbreviate(self.upgrade2_cost)}",
             self.buy_upgrade2
         )
-        self.upgrade2_button.pack(pady=7)
+        self.upgrade2_button.pack(pady=4)
 
         self.upgrade3_button = pretty_button(
             self.upgrades_frame,
-            f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks",
+            f"+50 | {abbreviate(self.upgrade3_cost)}",
             self.buy_upgrade3
         )
-        self.upgrade3_button.pack(pady=7)
+        self.upgrade3_button.pack(pady=4)
 
+        # Example for other upgrades (add your own buy_xxx methods as needed)
         self.super_duck_button = pretty_button(
             self.upgrades_frame,
-            f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks",
-            self.buy_super_duck if hasattr(self, 'buy_super_duck') else lambda: None
+            f"+10/sec | {abbreviate(self.super_duck_cost)}",
+            getattr(self, 'buy_super_duck', lambda: None)
         )
-        self.super_duck_button.pack(pady=7)
+        self.super_duck_button.pack(pady=4)
 
         self.ultra_click_button = pretty_button(
             self.upgrades_frame,
-            f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks",
-            self.buy_ultra_click if hasattr(self, 'buy_ultra_click') else lambda: None
+            f"x10/click 10s | {abbreviate(self.ultra_click_cost)}",
+            getattr(self, 'buy_ultra_click', lambda: None)
         )
-        self.ultra_click_button.pack(pady=7)
+        self.ultra_click_button.pack(pady=4)
 
         self.mega_click_button = pretty_button(
             self.upgrades_frame,
-            f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks",
-            self.buy_mega_click if hasattr(self, 'buy_mega_click') else lambda: None
+            f"x100/click 5s | {abbreviate(self.mega_click_cost)}",
+            getattr(self, 'buy_mega_click', lambda: None)
         )
-        self.mega_click_button.pack(pady=7)
+        self.mega_click_button.pack(pady=4)
 
         self.duck_factory_button = pretty_button(
             self.upgrades_frame,
-            f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks",
-            self.buy_duck_factory if hasattr(self, 'buy_duck_factory') else lambda: None
+            f"+100/sec | {abbreviate(self.duck_factory_cost)}",
+            getattr(self, 'buy_duck_factory', lambda: None)
         )
-        self.duck_factory_button.pack(pady=7)
+        self.duck_factory_button.pack(pady=4)
 
         self.duck_god_button = pretty_button(
             self.upgrades_frame,
-            f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks",
-            self.buy_duck_god if hasattr(self, 'buy_duck_god') else lambda: None
+            f"+1K/sec | {abbreviate(self.duck_god_cost)}",
+            getattr(self, 'buy_duck_god', lambda: None)
         )
-        self.duck_god_button.pack(pady=7)
+        self.duck_god_button.pack(pady=4)
 
         self.diamond_duck_button = pretty_button(
             self.upgrades_frame,
-            f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks",
-            self.buy_diamond_duck if hasattr(self, 'buy_diamond_duck') else lambda: None
+            f"+500 | {abbreviate(self.diamond_duck_cost)}",
+            getattr(self, 'buy_diamond_duck', lambda: None)
         )
-        self.diamond_duck_button.pack(pady=7)
+        self.diamond_duck_button.pack(pady=4)
 
         self.duck_army_button = pretty_button(
             self.upgrades_frame,
-            f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks",
-            self.buy_duck_army if hasattr(self, 'buy_duck_army') else lambda: None
+            f"+5K/sec | {abbreviate(self.duck_army_cost)}",
+            getattr(self, 'buy_duck_army', lambda: None)
         )
-        self.duck_army_button.pack(pady=7)
+        self.duck_army_button.pack(pady=4)
 
         self.duck_portal_button = pretty_button(
             self.upgrades_frame,
-            f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks",
-            self.buy_duck_portal if hasattr(self, 'buy_duck_portal') else lambda: None
+            f"x2/sec | {abbreviate(self.duck_portal_cost)}",
+            getattr(self, 'buy_duck_portal', lambda: None)
         )
-        self.duck_portal_button.pack(pady=7)
+        self.duck_portal_button.pack(pady=4)
 
         self.duck_bank_button = pretty_button(
             self.upgrades_frame,
-            f"Duck Bank (+25000/sec)\nCost: {self.duck_bank_cost} ducks",
-            self.buy_duck_bank if hasattr(self, 'buy_duck_bank') else lambda: None
+            f"+25K/sec | {abbreviate(self.duck_bank_cost)}",
+            getattr(self, 'buy_duck_bank', lambda: None)
         )
-        self.duck_bank_button.pack(pady=7)
+        self.duck_bank_button.pack(pady=4)
 
         self.duck_rocket_button = pretty_button(
             self.upgrades_frame,
-            f"Duck Rocket (+100000/sec)\nCost: {self.duck_rocket_cost} ducks",
-            self.buy_duck_rocket if hasattr(self, 'buy_duck_rocket') else lambda: None
+            f"+100K/sec | {abbreviate(self.duck_rocket_cost)}",
+            getattr(self, 'buy_duck_rocket', lambda: None)
         )
-        self.duck_rocket_button.pack(pady=7)
+        self.duck_rocket_button.pack(pady=4)
 
         self.duck_empire_button = pretty_button(
             self.upgrades_frame,
-            f"Duck Empire (+500000/sec)\nCost: {self.duck_empire_cost} ducks",
-            self.buy_duck_empire if hasattr(self, 'buy_duck_empire') else lambda: None
+            f"+500K/sec | {abbreviate(self.duck_empire_cost)}",
+            getattr(self, 'buy_duck_empire', lambda: None)
         )
-        self.duck_empire_button.pack(pady=7)
+        self.duck_empire_button.pack(pady=4)
 
         self.duck_universe_button = pretty_button(
             self.upgrades_frame,
-            f"Duck Universe (+2,500,000/sec)\nCost: {self.duck_universe_cost} ducks",
-            self.buy_duck_universe if hasattr(self, 'buy_duck_universe') else lambda: None
+            f"+2.5M/sec | {abbreviate(self.duck_universe_cost)}",
+            getattr(self, 'buy_duck_universe', lambda: None)
         )
-        self.duck_universe_button.pack(pady=7)
+        self.duck_universe_button.pack(pady=4)
 
         # --- 23 Named Upgrades ---
         for idx, name in enumerate(self.extra_upgrade_names):
             btn = pretty_button(
                 self.upgrades_frame,
-                f"{name} (+{self.extra_upgrade_incomes[idx]:,}/sec)\nCost: {self.extra_upgrade_costs[idx]:,} ducks",
+                f"+{abbreviate(self.extra_upgrade_incomes[idx])}/sec | {abbreviate(self.extra_upgrade_costs[idx])}\n{name}",
                 lambda i=idx: self.buy_extra_upgrade(i)
             )
-            btn.pack(pady=7)
+            btn.pack(pady=4)
             self.extra_upgrade_buttons.append(btn)
 
         self.rebirth_button = pretty_button(
             self.upgrades_frame,
-            f"REBIRTH!\nCost: {self.rebirth_cost} ducks",
+            f"REBIRTH | {abbreviate(self.rebirth_cost)}",
             self.rebirth
         )
-        self.rebirth_button.config(font=("Segoe UI", 15, "bold"), bg="#f6c9d0", fg="#232946", height=3)
-        self.rebirth_button.pack(pady=18)
+        self.rebirth_button.config(font=("Segoe UI", 15, "bold"), bg="#f6c9d0", fg="#232946", height=2)
+        self.rebirth_button.pack(pady=12)
 
         self.auto_duck_loop()
         self.root.after(1000, self.auto_save)
@@ -361,7 +373,7 @@ class DuckClicker:
             self.ducks += int(self.ducks_per_click * 100 * bonus)
         else:
             self.ducks += int(self.ducks_per_click * bonus)
-        self.label.config(text=f"Ducks: {self.ducks}")
+        self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
         self.status.config(text="Quack! 🦆", fg="#b8c1ec")
 
     def buy_upgrade1(self):
@@ -369,9 +381,9 @@ class DuckClicker:
             self.ducks -= self.upgrade1_cost
             self.ducks_per_click += 1
             self.upgrade1_cost = int(self.upgrade1_cost * 1.5) + 2
-            self.label.config(text=f"Ducks: {self.ducks}")
+            self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
             self.upgrade1_button.config(
-                text=f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks"
+                text=f"+1/click | {abbreviate(self.upgrade1_cost)}"
             )
             self.status.config(text="Your duck click is stronger!", fg="#b8c1ec")
         else:
@@ -382,9 +394,9 @@ class DuckClicker:
             self.ducks -= self.upgrade2_cost
             self.auto_ducks += 1
             self.upgrade2_cost = int(self.upgrade2_cost * 1.7) + 5
-            self.label.config(text=f"Ducks: {self.ducks}")
+            self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
             self.upgrade2_button.config(
-                text=f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks"
+                text=f"+1/sec | {abbreviate(self.upgrade2_cost)}"
             )
             self.status.config(text="Auto Duck hired! Ducks per second increased!", fg="#b8c1ec")
         else:
@@ -395,9 +407,9 @@ class DuckClicker:
             self.ducks -= self.upgrade3_cost
             self.ducks += 50
             self.upgrade3_cost = int(self.upgrade3_cost * 2.2) + 10
-            self.label.config(text=f"Ducks: {self.ducks}")
+            self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
             self.upgrade3_button.config(
-                text=f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks"
+                text=f"+50 | {abbreviate(self.upgrade3_cost)}"
             )
             self.status.config(text="Golden Duck! That's a lot of ducks!", fg="#fbc02d")
         else:
@@ -408,11 +420,11 @@ class DuckClicker:
             self.ducks -= self.extra_upgrade_costs[idx]
             self.auto_ducks += self.extra_upgrade_incomes[idx]
             self.extra_upgrade_costs[idx] = int(self.extra_upgrade_costs[idx] * 2.5)
-            self.label.config(text=f"Ducks: {self.ducks}")
+            self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
             self.extra_upgrade_buttons[idx].config(
-                text=f"{self.extra_upgrade_names[idx]} (+{self.extra_upgrade_incomes[idx]:,}/sec)\nCost: {self.extra_upgrade_costs[idx]:,} ducks"
+                text=f"+{abbreviate(self.extra_upgrade_incomes[idx])}/sec | {abbreviate(self.extra_upgrade_costs[idx])}\n{self.extra_upgrade_names[idx]}"
             )
-            self.status.config(text=f"{self.extra_upgrade_names[idx]} hired! +{self.extra_upgrade_incomes[idx]:,}/sec!", fg="#00bcd4")
+            self.status.config(text=f"{self.extra_upgrade_names[idx]} hired! +{abbreviate(self.extra_upgrade_incomes[idx])}/sec!", fg="#00bcd4")
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -445,32 +457,32 @@ class DuckClicker:
             self.duck_empire_cost = 50000000
             self.duck_universe_cost = 250000000
             self.rebirth_cost = int(self.rebirth_cost * 2.5)
-            self.label.config(text=f"Ducks: {self.ducks}")
+            self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
             self.rebirth_label.config(text=f"Rebirths: {self.rebirths}")
             self.rebirth_button.config(
-                text=f"REBIRTH!\nCost: {self.rebirth_cost} ducks"
+                text=f"REBIRTH | {abbreviate(self.rebirth_cost)}"
             )
             self.status.config(text=f"Rebirth! Permanent +50% ducks/click! Total rebirths: {self.rebirths}", fg="#eebbc3")
             # Reset all upgrade buttons
-            self.upgrade1_button.config(text=f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks")
-            self.upgrade2_button.config(text=f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks")
-            self.upgrade3_button.config(text=f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks")
-            self.super_duck_button.config(text=f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks")
-            self.ultra_click_button.config(text=f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks")
-            self.mega_click_button.config(text=f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks")
-            self.duck_factory_button.config(text=f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks")
-            self.duck_god_button.config(text=f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks")
-            self.diamond_duck_button.config(text=f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks")
-            self.duck_army_button.config(text=f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks")
-            self.duck_portal_button.config(text=f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks")
-            self.duck_bank_button.config(text=f"Duck Bank (+25000/sec)\nCost: {self.duck_bank_cost} ducks")
-            self.duck_rocket_button.config(text=f"Duck Rocket (+100000/sec)\nCost: {self.duck_rocket_cost} ducks")
-            self.duck_empire_button.config(text=f"Duck Empire (+500000/sec)\nCost: {self.duck_empire_cost} ducks")
-            self.duck_universe_button.config(text=f"Duck Universe (+2,500,000/sec)\nCost: {self.duck_universe_cost} ducks")
+            self.upgrade1_button.config(text=f"+1/click | {abbreviate(self.upgrade1_cost)}")
+            self.upgrade2_button.config(text=f"+1/sec | {abbreviate(self.upgrade2_cost)}")
+            self.upgrade3_button.config(text=f"+50 | {abbreviate(self.upgrade3_cost)}")
+            self.super_duck_button.config(text=f"+10/sec | {abbreviate(self.super_duck_cost)}")
+            self.ultra_click_button.config(text=f"x10/click 10s | {abbreviate(self.ultra_click_cost)}")
+            self.mega_click_button.config(text=f"x100/click 5s | {abbreviate(self.mega_click_cost)}")
+            self.duck_factory_button.config(text=f"+100/sec | {abbreviate(self.duck_factory_cost)}")
+            self.duck_god_button.config(text=f"+1K/sec | {abbreviate(self.duck_god_cost)}")
+            self.diamond_duck_button.config(text=f"+500 | {abbreviate(self.diamond_duck_cost)}")
+            self.duck_army_button.config(text=f"+5K/sec | {abbreviate(self.duck_army_cost)}")
+            self.duck_portal_button.config(text=f"x2/sec | {abbreviate(self.duck_portal_cost)}")
+            self.duck_bank_button.config(text=f"+25K/sec | {abbreviate(self.duck_bank_cost)}")
+            self.duck_rocket_button.config(text=f"+100K/sec | {abbreviate(self.duck_rocket_cost)}")
+            self.duck_empire_button.config(text=f"+500K/sec | {abbreviate(self.duck_empire_cost)}")
+            self.duck_universe_button.config(text=f"+2.5M/sec | {abbreviate(self.duck_universe_cost)}")
             # Reset extra upgrades
             for idx, btn in enumerate(self.extra_upgrade_buttons):
                 btn.config(
-                    text=f"{self.extra_upgrade_names[idx]} (+{self.extra_upgrade_incomes[idx]:,}/sec)\nCost: {self.extra_upgrade_costs[idx]:,} ducks"
+                    text=f"+{abbreviate(self.extra_upgrade_incomes[idx])}/sec | {abbreviate(self.extra_upgrade_costs[idx])}\n{self.extra_upgrade_names[idx]}"
                 )
         else:
             self.status.config(text="Not enough ducks to rebirth!", fg="#d32f2f")
@@ -478,7 +490,7 @@ class DuckClicker:
     def auto_duck_loop(self):
         if self.auto_ducks > 0:
             self.ducks += self.auto_ducks
-            self.label.config(text=f"Ducks: {self.ducks}")
+            self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
         self.root.after(1000, self.auto_duck_loop)
 
     def on_close(self):
