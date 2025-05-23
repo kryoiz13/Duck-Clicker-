@@ -4,7 +4,7 @@ import sys
 import urllib.request
 
 # --- AUTO-UPDATE SECTION ---
-UPDATE_URL = "https://raw.githubusercontent.com/yourusername/yourrepo/main/duck_clicker.py"  # CHANGE THIS!
+UPDATE_URL = "https://raw.githubusercontent.com/kryoiz13/Duck-Clicker-/refs/heads/main/duck_clicker.py"  # CHANGE THIS!
 LOCAL_FILE = os.path.abspath(__file__)
 
 def check_for_update():
