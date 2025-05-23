@@ -316,6 +316,17 @@ class DuckClicker:
         self.root.after(1000, self.auto_save)
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
+    def click_duck(self):
+        bonus = 1 + self.rebirths * 0.5
+        if self.ultra_click_active:
+            self.ducks += int(self.ducks_per_click * 10 * bonus)
+        elif self.mega_click_active:
+            self.ducks += int(self.ducks_per_click * 100 * bonus)
+        else:
+            self.ducks += int(self.ducks_per_click * bonus)
+        self.label.config(text=f"Ducks: {self.ducks}")
+        self.status.config(text="Quack! 🦆", fg="#b8c1ec")
+
     # ... rest of your methods remain unchanged ...
     # (All your upgrade/buy/rebirth/loop methods are below, as in your current file)
 
