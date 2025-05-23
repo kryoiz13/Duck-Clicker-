@@ -141,19 +141,36 @@ class DuckClicker:
         )
         self.footer.pack(side="bottom", pady=20)
 
-        # --- Upgrades panel on the right ---
-        upgrades_frame = tk.Frame(root, bg="#e1bee7", bd=4, relief="ridge")
-        upgrades_frame.pack(side="right", fill="y", padx=20, pady=40)
+        # --- Scrollable Upgrades panel on the right ---
+        upgrades_outer = tk.Frame(root, bg="#e1bee7", bd=4, relief="ridge")
+        upgrades_outer.pack(side="right", fill="y", padx=20, pady=40)
+
+        canvas = tk.Canvas(upgrades_outer, bg="#e1bee7", highlightthickness=0)
+        scrollbar = tk.Scrollbar(upgrades_outer, orient="vertical", command=canvas.yview)
+        self.upgrades_frame = tk.Frame(canvas, bg="#e1bee7")
+
+        self.upgrades_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=self.upgrades_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
         upgrades_title = tk.Label(
-            upgrades_frame, text="Upgrades", font=("Comic Sans MS", 24, "bold"),
+            self.upgrades_frame, text="Upgrades", font=("Comic Sans MS", 24, "bold"),
             bg="#e1bee7", fg="#6a1b9a"
         )
         upgrades_title.pack(pady=(10, 20))
 
         # Upgrade 1: Increase ducks per click
         self.upgrade1_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_upgrade1,
@@ -163,7 +180,7 @@ class DuckClicker:
 
         # Upgrade 2: Auto Duck (ducks per second)
         self.upgrade2_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_upgrade2,
@@ -173,7 +190,7 @@ class DuckClicker:
 
         # Upgrade 3: Golden Duck (big bonus)
         self.upgrade3_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_upgrade3,
@@ -183,7 +200,7 @@ class DuckClicker:
 
         # Upgrade 4: Super Duck (adds 10 ducks/sec)
         self.super_duck_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_super_duck,
@@ -193,7 +210,7 @@ class DuckClicker:
 
         # Upgrade 5: Ultra Click (10x click for 10 seconds)
         self.ultra_click_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_ultra_click,
@@ -203,7 +220,7 @@ class DuckClicker:
 
         # Upgrade 6: Mega Click (x100 for 5s)
         self.mega_click_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Mega Click (x100 for 5s)\nCost: {self.mega_click_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_mega_click,
@@ -213,7 +230,7 @@ class DuckClicker:
 
         # Upgrade 7: Duck Factory (+100/sec)
         self.duck_factory_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Duck Factory (+100/sec)\nCost: {self.duck_factory_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_duck_factory,
@@ -223,7 +240,7 @@ class DuckClicker:
 
         # Upgrade 8: Duck God (+1000/sec)
         self.duck_god_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Duck God (+1000/sec)\nCost: {self.duck_god_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_duck_god,
@@ -233,7 +250,7 @@ class DuckClicker:
 
         # Upgrade 9: Diamond Duck (+500 ducks instantly)
         self.diamond_duck_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Diamond Duck (+500 ducks)\nCost: {self.diamond_duck_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_diamond_duck,
@@ -243,7 +260,7 @@ class DuckClicker:
 
         # Upgrade 10: Duck Army (+5000/sec)
         self.duck_army_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Duck Army (+5000/sec)\nCost: {self.duck_army_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_duck_army,
@@ -253,7 +270,7 @@ class DuckClicker:
 
         # Upgrade 11: Duck Portal (doubles all ducks/sec)
         self.duck_portal_button = tk.Button(
-            upgrades_frame,
+            self.upgrades_frame,
             text=f"Duck Portal (x2 ducks/sec)\nCost: {self.duck_portal_cost} ducks",
             font=("Comic Sans MS", 14, "bold"),
             command=self.buy_duck_portal,
