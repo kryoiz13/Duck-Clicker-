@@ -116,6 +116,21 @@ class DuckClicker:
         )
         self.stats_auto_label.pack(side="left", padx=(0, 40))
 
+        # --- ADMIN PANEL (only for lpeth) ---
+        if os.environ.get("USERNAME", "") == "lpeth":
+            admin_frame = tk.Frame(self.main_frame, bg="#232946")
+            admin_frame.pack(side="top", anchor="ne", padx=10, pady=5)
+            tk.Label(
+                admin_frame, text="Admin Panel", font=("Segoe UI", 12, "bold"),
+                bg="#232946", fg="#f44336"
+            ).pack(side="left", padx=(0, 10))
+            self.admin_entry = tk.Entry(admin_frame, width=10)
+            self.admin_entry.pack(side="left")
+            tk.Button(
+                admin_frame, text="Add Ducks", font=("Segoe UI", 10, "bold"),
+                command=self.admin_add_ducks, bg="#eebbc3", fg="#232946"
+            ).pack(side="left", padx=(5, 0))
+
         # --- Load progress ---
         progress = load_progress()
         self.ducks = progress.get("ducks", 0)
@@ -630,6 +645,15 @@ class DuckClicker:
             self.ducks += self.auto_ducks
             self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
         self.root.after(1000, self.auto_duck_loop)
+
+    def admin_add_ducks(self):
+        try:
+            amount = int(self.admin_entry.get())
+            self.ducks += amount
+            self.label.config(text=f"Ducks: {abbreviate(self.ducks)}")
+            self.status.config(text=f"Admin: Added {abbreviate(amount)} ducks.", fg="#f44336")
+        except Exception:
+            self.status.config(text="Admin: Invalid number!", fg="#f44336")
 
     def on_close(self):
         save_progress(self)
