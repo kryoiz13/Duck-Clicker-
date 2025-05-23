@@ -134,21 +134,12 @@ class DuckClicker:
         )
         self.rebirth_label.pack(pady=5)
 
-        # Duck button with image (or fallback emoji)
-        try:
-            self.duck_img = tk.PhotoImage(file="duck.png")
-            self.duck_button = tk.Button(
-                main_frame, image=self.duck_img,
-                command=self.click_duck,
-                bg="#eebbc3", activebackground="#fffffe",
-                bd=6, relief="ridge", cursor="hand2"
-            )
-        except Exception:
-            self.duck_button = tk.Button(
-                main_frame, text="🦆", font=("Segoe UI", 80, "bold"),
-                command=self.click_duck,
-                bg="#eebbc3", activebackground="#fffffe", bd=6, relief="ridge", cursor="hand2", fg="#232946"
-            )
+        # --- Duck button: big emoji only ---
+        self.duck_button = tk.Button(
+            main_frame, text="🦆", font=("Segoe UI", 80, "bold"),
+            command=self.click_duck,
+            bg="#eebbc3", activebackground="#fffffe", bd=6, relief="ridge", cursor="hand2", fg="#232946"
+        )
         self.duck_button.pack(pady=20)
 
         self.status = tk.Label(
