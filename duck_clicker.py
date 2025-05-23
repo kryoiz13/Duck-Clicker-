@@ -57,8 +57,7 @@ def save_progress(game):
         "duck_rocket_cost": getattr(game, "duck_rocket_cost", 10000000),
         "duck_empire_cost": getattr(game, "duck_empire_cost", 50000000),
         "duck_universe_cost": getattr(game, "duck_universe_cost", 250000000),
-        # Save extra upgrades
-        **{f"upgrade{i}_cost": getattr(game, f"upgrade{i}_cost", 0) for i in range(4, 24)}
+        "extra_upgrade_costs": getattr(game, "extra_upgrade_costs", []),
     }
     try:
         with open(SAVE_FILE, "w", encoding="utf-8") as f:
@@ -113,9 +112,32 @@ class DuckClicker:
         self.duck_rocket_cost = progress.get("duck_rocket_cost", 10000000)
         self.duck_empire_cost = progress.get("duck_empire_cost", 50000000)
         self.duck_universe_cost = progress.get("duck_universe_cost", 250000000)
-        # Extra upgrades
-        for i in range(4, 24):
-            setattr(self, f"upgrade{i}_cost", progress.get(f"upgrade{i}_cost", 10**(8+i)))
+
+        # --- 23 Named Upgrades ---
+        self.extra_upgrade_names = [
+            "Quantum Duck", "Time Duck", "Space Duck", "Dark Duck", "Light Duck", "Infinity Duck",
+            "Omega Duck", "Alpha Duck", "Beta Duck", "Gamma Duck", "Delta Duck", "Epsilon Duck",
+            "Zeta Duck", "Eta Duck", "Theta Duck", "Iota Duck", "Kappa Duck", "Lambda Duck",
+            "Mu Duck", "Nu Duck", "Xi Duck", "Omicron Duck", "Ultimate Duck"
+        ]
+        self.extra_upgrade_costs = progress.get("extra_upgrade_costs", [
+            500_000_000, 2_000_000_000, 8_000_000_000, 30_000_000_000, 120_000_000_000,
+            500_000_000_000, 2_000_000_000_000, 8_000_000_000_000, 30_000_000_000_000,
+            120_000_000_000_000, 500_000_000_000_000, 2_000_000_000_000_000, 8_000_000_000_000_000,
+            30_000_000_000_000_000, 120_000_000_000_000_000, 500_000_000_000_000_000,
+            2_000_000_000_000_000_000, 8_000_000_000_000_000_000, 30_000_000_000_000_000_000,
+            120_000_000_000_000_000_000, 500_000_000_000_000_000_000, 2_000_000_000_000_000_000_000,
+            8_000_000_000_000_000_000_000
+        ])
+        self.extra_upgrade_incomes = [
+            5_000_000, 20_000_000, 80_000_000, 300_000_000, 1_200_000_000, 5_000_000_000,
+            20_000_000_000, 80_000_000_000, 300_000_000_000, 1_200_000_000_000, 5_000_000_000_000,
+            20_000_000_000_000, 80_000_000_000_000, 300_000_000_000_000, 1_200_000_000_000_000,
+            5_000_000_000_000_000, 20_000_000_000_000_000, 80_000_000_000_000_000,
+            300_000_000_000_000_000, 1_200_000_000_000_000_000, 5_000_000_000_000_000_000,
+            20_000_000_000_000_000_000, 80_000_000_000_000_000_000
+        ]
+        self.extra_upgrade_buttons = []
 
         # Main frame for duck and counter
         main_frame = tk.Frame(root, bg="#232946")
@@ -309,16 +331,15 @@ class DuckClicker:
         )
         self.duck_universe_button.pack(pady=7)
 
-        # --- 23 More Upgrades ---
-        self.upgrade_buttons = []
-        for i in range(4, 24):
+        # --- 23 Named Upgrades ---
+        for idx, name in enumerate(self.extra_upgrade_names):
             btn = pretty_button(
                 self.upgrades_frame,
-                f"Upgrade {i} (+{5**i:,}/sec)\nCost: {getattr(self, f'upgrade{i}_cost')} ducks",
-                getattr(self, f"buy_upgrade{i}")
+                f"{name} (+{self.extra_upgrade_incomes[idx]:,}/sec)\nCost: {self.extra_upgrade_costs[idx]:,} ducks",
+                lambda i=idx: self.buy_extra_upgrade(i)
             )
             btn.pack(pady=7)
-            self.upgrade_buttons.append(btn)
+            self.extra_upgrade_buttons.append(btn)
 
         self.rebirth_button = pretty_button(
             self.upgrades_frame,
@@ -345,41 +366,16 @@ class DuckClicker:
 
     # ... All your previous buy_upgradeX methods here ...
 
-    # --- 23 More Upgrades ---
-    # Each upgrade increases auto_ducks by a large amount and increases its own cost
-    def buy_upgrade4(self): self._buy_generic_upgrade(4, 5000000)
-    def buy_upgrade5(self): self._buy_generic_upgrade(5, 20000000)
-    def buy_upgrade6(self): self._buy_generic_upgrade(6, 80000000)
-    def buy_upgrade7(self): self._buy_generic_upgrade(7, 300000000)
-    def buy_upgrade8(self): self._buy_generic_upgrade(8, 1200000000)
-    def buy_upgrade9(self): self._buy_generic_upgrade(9, 5000000000)
-    def buy_upgrade10(self): self._buy_generic_upgrade(10, 20000000000)
-    def buy_upgrade11(self): self._buy_generic_upgrade(11, 80000000000)
-    def buy_upgrade12(self): self._buy_generic_upgrade(12, 300000000000)
-    def buy_upgrade13(self): self._buy_generic_upgrade(13, 1200000000000)
-    def buy_upgrade14(self): self._buy_generic_upgrade(14, 5000000000000)
-    def buy_upgrade15(self): self._buy_generic_upgrade(15, 20000000000000)
-    def buy_upgrade16(self): self._buy_generic_upgrade(16, 80000000000000)
-    def buy_upgrade17(self): self._buy_generic_upgrade(17, 300000000000000)
-    def buy_upgrade18(self): self._buy_generic_upgrade(18, 1200000000000000)
-    def buy_upgrade19(self): self._buy_generic_upgrade(19, 5000000000000000)
-    def buy_upgrade20(self): self._buy_generic_upgrade(20, 20000000000000000)
-    def buy_upgrade21(self): self._buy_generic_upgrade(21, 80000000000000000)
-    def buy_upgrade22(self): self._buy_generic_upgrade(22, 300000000000000000)
-    def buy_upgrade23(self): self._buy_generic_upgrade(23, 1200000000000000000)
-
-    def _buy_generic_upgrade(self, num, amount):
-        cost = getattr(self, f"upgrade{num}_cost")
-        if self.ducks >= cost:
-            self.ducks -= cost
-            self.auto_ducks += amount
-            new_cost = int(cost * 2.5)
-            setattr(self, f"upgrade{num}_cost", new_cost)
+    def buy_extra_upgrade(self, idx):
+        if self.ducks >= self.extra_upgrade_costs[idx]:
+            self.ducks -= self.extra_upgrade_costs[idx]
+            self.auto_ducks += self.extra_upgrade_incomes[idx]
+            self.extra_upgrade_costs[idx] = int(self.extra_upgrade_costs[idx] * 2.5)
             self.label.config(text=f"Ducks: {self.ducks}")
-            self.upgrade_buttons[num-4].config(
-                text=f"Upgrade {num} (+{amount:,}/sec)\nCost: {new_cost} ducks"
+            self.extra_upgrade_buttons[idx].config(
+                text=f"{self.extra_upgrade_names[idx]} (+{self.extra_upgrade_incomes[idx]:,}/sec)\nCost: {self.extra_upgrade_costs[idx]:,} ducks"
             )
-            self.status.config(text=f"Upgrade {num} hired! +{amount:,}/sec!", fg="#00bcd4")
+            self.status.config(text=f"{self.extra_upgrade_names[idx]} hired! +{self.extra_upgrade_incomes[idx]:,}/sec!", fg="#00bcd4")
         else:
             self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
 
@@ -437,9 +433,10 @@ class DuckClicker:
             self.duck_empire_button.config(text=f"Duck Empire (+500000/sec)\nCost: {self.duck_empire_cost} ducks")
             self.duck_universe_button.config(text=f"Duck Universe (+2,500,000/sec)\nCost: {self.duck_universe_cost} ducks")
             # Reset extra upgrades
-            for i, btn in enumerate(self.upgrade_buttons, 4):
-                cost = getattr(self, f"upgrade{i}_cost")
-                btn.config(text=f"Upgrade {i} (+{5**i:,}/sec)\nCost: {cost} ducks")
+            for idx, btn in enumerate(self.extra_upgrade_buttons):
+                btn.config(
+                    text=f"{self.extra_upgrade_names[idx]} (+{self.extra_upgrade_incomes[idx]:,}/sec)\nCost: {self.extra_upgrade_costs[idx]:,} ducks"
+                )
         else:
             self.status.config(text="Not enough ducks to rebirth!", fg="#d32f2f")
 
