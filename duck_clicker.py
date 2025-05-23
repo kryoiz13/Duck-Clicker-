@@ -1,0 +1,214 @@
+import tkinter as tk
+
+class DuckClicker:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Duck Clicker 🦆")
+        self.root.attributes('-fullscreen', True)
+        self.root.configure(bg="#b3e5fc")
+
+        self.ducks = 0
+        self.ducks_per_click = 1
+        self.auto_ducks = 0
+        self.super_ducks = 0
+        self.super_duck_cost = 1000
+        self.ultra_click_cost = 500
+        self.ultra_click_active = False
+        self.ultra_click_duration = 10  # seconds
+
+        # Main frame for duck and counter
+        main_frame = tk.Frame(root, bg="#b3e5fc")
+        main_frame.pack(side="left", fill="both", expand=True)
+
+        # Title label
+        self.title = tk.Label(
+            main_frame, text="Duck Clicker!", font=("Comic Sans MS", 40, "bold"),
+            bg="#b3e5fc", fg="#ffb300"
+        )
+        self.title.pack(pady=(40, 10))
+
+        # Duck counter label
+        self.label = tk.Label(
+            main_frame, text="Ducks: 0", font=("Comic Sans MS", 28, "bold"),
+            bg="#b3e5fc", fg="#1976d2"
+        )
+        self.label.pack(pady=10)
+
+        # Cute duck (drawn with emoji and text)
+        self.duck_button = tk.Button(
+            main_frame, text="(•ᴥ•)\n  🦆", font=("Comic Sans MS", 80, "bold"),
+            command=self.click_duck,
+            bg="#fffde7", activebackground="#ffe082", bd=6, relief="ridge", cursor="hand2", fg="#ffb300"
+        )
+        self.duck_button.pack(pady=20)
+
+        # Status label
+        self.status = tk.Label(
+            main_frame, text="", font=("Comic Sans MS", 16, "italic"),
+            bg="#b3e5fc", fg="#388e3c"
+        )
+        self.status.pack(pady=10)
+
+        # Fun footer
+        self.footer = tk.Label(
+            main_frame, text="Quack your way to the top!", font=("Comic Sans MS", 16),
+            bg="#b3e5fc", fg="#0288d1"
+        )
+        self.footer.pack(side="bottom", pady=20)
+
+        # --- Upgrades panel on the right ---
+        upgrades_frame = tk.Frame(root, bg="#e1bee7", bd=4, relief="ridge")
+        upgrades_frame.pack(side="right", fill="y", padx=20, pady=40)
+
+        upgrades_title = tk.Label(
+            upgrades_frame, text="Upgrades", font=("Comic Sans MS", 24, "bold"),
+            bg="#e1bee7", fg="#6a1b9a"
+        )
+        upgrades_title.pack(pady=(10, 20))
+
+        # Upgrade 1: Increase ducks per click
+        self.upgrade1_cost = 10
+        self.upgrade1_button = tk.Button(
+            upgrades_frame,
+            text=f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_upgrade1,
+            bg="#ffd54f", fg="#6d4c41", activebackground="#ffe082", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.upgrade1_button.pack(pady=10)
+
+        # Upgrade 2: Auto Duck (ducks per second)
+        self.upgrade2_cost = 50
+        self.upgrade2_button = tk.Button(
+            upgrades_frame,
+            text=f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_upgrade2,
+            bg="#aed581", fg="#33691e", activebackground="#dcedc8", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.upgrade2_button.pack(pady=10)
+
+        # Upgrade 3: Golden Duck (big bonus)
+        self.upgrade3_cost = 200
+        self.upgrade3_button = tk.Button(
+            upgrades_frame,
+            text=f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_upgrade3,
+            bg="#fff176", fg="#f57c00", activebackground="#ffe082", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.upgrade3_button.pack(pady=10)
+
+        # Upgrade 4: Super Duck (adds 10 ducks/sec)
+        self.super_duck_button = tk.Button(
+            upgrades_frame,
+            text=f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_super_duck,
+            bg="#81d4fa", fg="#01579b", activebackground="#b3e5fc", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.super_duck_button.pack(pady=10)
+
+        # Upgrade 5: Ultra Click (10x click for 10 seconds)
+        self.ultra_click_button = tk.Button(
+            upgrades_frame,
+            text=f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks",
+            font=("Comic Sans MS", 14, "bold"),
+            command=self.buy_ultra_click,
+            bg="#ff8a65", fg="#4e342e", activebackground="#ffe0b2", bd=3, relief="raised", cursor="hand2", width=22, height=2
+        )
+        self.ultra_click_button.pack(pady=10)
+
+        # Start auto duck loop
+        self.auto_duck_loop()
+
+    def click_duck(self):
+        if self.ultra_click_active:
+            self.ducks += self.ducks_per_click * 10
+        else:
+            self.ducks += self.ducks_per_click
+        self.label.config(text=f"Ducks: {self.ducks}")
+        self.status.config(text="Quack! 🦆", fg="#388e3c")
+
+    def buy_upgrade1(self):
+        if self.ducks >= self.upgrade1_cost:
+            self.ducks -= self.upgrade1_cost
+            self.ducks_per_click += 1
+            self.upgrade1_cost = int(self.upgrade1_cost * 1.5) + 2  # Cost increases
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.upgrade1_button.config(
+                text=f"Stronger Beak (+1/click)\nCost: {self.upgrade1_cost} ducks"
+            )
+            self.status.config(text="Your duck click is stronger!", fg="#388e3c")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_upgrade2(self):
+        if self.ducks >= self.upgrade2_cost:
+            self.ducks -= self.upgrade2_cost
+            self.auto_ducks += 1
+            self.upgrade2_cost = int(self.upgrade2_cost * 1.7) + 5  # Cost increases
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.upgrade2_button.config(
+                text=f"Auto Duck (+1/sec)\nCost: {self.upgrade2_cost} ducks"
+            )
+            self.status.config(text="Auto Duck hired! Ducks per second increased!", fg="#388e3c")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_upgrade3(self):
+        if self.ducks >= self.upgrade3_cost:
+            self.ducks -= self.upgrade3_cost
+            self.ducks += 50
+            self.upgrade3_cost = int(self.upgrade3_cost * 2.2) + 10  # Cost increases
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.upgrade3_button.config(
+                text=f"Golden Duck (+50 ducks)\nCost: {self.upgrade3_cost} ducks"
+            )
+            self.status.config(text="Golden Duck! That's a lot of ducks!", fg="#fbc02d")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_super_duck(self):
+        if self.ducks >= self.super_duck_cost:
+            self.ducks -= self.super_duck_cost
+            self.auto_ducks += 10
+            self.super_duck_cost = int(self.super_duck_cost * 2.5)
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.super_duck_button.config(
+                text=f"Super Duck (+10/sec)\nCost: {self.super_duck_cost} ducks"
+            )
+            self.status.config(text="Super Duck hired! Ducks per second +10!", fg="#0288d1")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def buy_ultra_click(self):
+        if self.ducks >= self.ultra_click_cost and not self.ultra_click_active:
+            self.ducks -= self.ultra_click_cost
+            self.ultra_click_cost = int(self.ultra_click_cost * 2.5)
+            self.ultra_click_button.config(
+                text=f"Ultra Click (x10 for 10s)\nCost: {self.ultra_click_cost} ducks"
+            )
+            self.label.config(text=f"Ducks: {self.ducks}")
+            self.ultra_click_active = True
+            self.status.config(text="Ultra Click activated! 10x for 10s!", fg="#ff7043")
+            self.root.after(self.ultra_click_duration * 1000, self.deactivate_ultra_click)
+        elif self.ultra_click_active:
+            self.status.config(text="Ultra Click already active!", fg="#d32f2f")
+        else:
+            self.status.config(text="Not enough ducks! 🦆", fg="#d32f2f")
+
+    def deactivate_ultra_click(self):
+        self.ultra_click_active = False
+        self.status.config(text="Ultra Click ended!", fg="#388e3c")
+
+    def auto_duck_loop(self):
+        if self.auto_ducks > 0:
+            self.ducks += self.auto_ducks
+            self.label.config(text=f"Ducks: {self.ducks}")
+        self.root.after(1000, self.auto_duck_loop)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = DuckClicker(root)
+    root.mainloop()
