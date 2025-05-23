@@ -391,6 +391,7 @@ class DuckClicker:
         self.root.attributes('-fullscreen', self.fullscreen)
 
     def update_stats_tab(self):
+        # Calculate per-click ducks (with rebirth and multipliers)
         bonus = 1 + self.rebirths * 0.5
         if self.ultra_click_active:
             per_click = int(self.ducks_per_click * 10 * bonus)
@@ -404,7 +405,7 @@ class DuckClicker:
         self.stats_auto_label.config(
             text=f"Ducks per second (auto): {abbreviate(self.auto_ducks)}"
         )
-        self.root.after(200, self.update_stats_tab)
+        self.root.after(200, self.update_stats_tab)  # Update every 0.2s
 
     def click_duck(self):
         bonus = 1 + self.rebirths * 0.5
